@@ -30,7 +30,7 @@ ignoreip = 127.0.0.1
 # [nginx-http-auth]
 # enabled  = true
 # filter   = nginx-http-auth
-# action = ufw
+# action = ufw[application="Nginx Full",blocktype=reject]
 # port     = http,https
 # logpath  = /var/log/nginx/error.log
 # bantime = 3600
@@ -42,7 +42,7 @@ ignoreip = 127.0.0.1
 # enabled  = true
 # port     = http,https
 # filter   = nginx-noscript
-# action = ufw
+# action = ufw[application="Nginx Full",blocktype=reject]
 # logpath  = /var/log/nginx/access.log
 # bantime = 3600
 # findtime = 300
@@ -53,7 +53,7 @@ ignoreip = 127.0.0.1
 # enabled  = true
 # port     = http,https
 # filter   = nginx-badbots
-# action = ufw
+# action = ufw[application="Nginx Full",blocktype=reject]
 # logpath  = /var/log/nginx/access.log
 # bantime = 3600
 # findtime = 300
@@ -63,8 +63,7 @@ ignoreip = 127.0.0.1
 # [nginx-req-limit]
 # enabled = true
 # filter = nginx-req-limit
-# action = ufw
-# action = iptables-multiport[name=ReqLimit, port="http,https", protocol=tcp]
+# action = ufw[application="Nginx Full",blocktype=reject]
 # logpath = /var/log/nginx/*error.log
 # findtime = 600
 # bantime = 7200
