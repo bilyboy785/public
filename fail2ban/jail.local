@@ -12,7 +12,7 @@ ignoreip = 127.0.0.1
 # [proftpd]
 # enabled = true
 # port = ftp,ftp-data,ftps,ftps-data
-# action = ufw
+# action = ufw[application="PROFTPd",blocktype=reject]
 # bantime = 3600
 # findtime = 300
 # maxretry = 3
@@ -21,7 +21,7 @@ ignoreip = 127.0.0.1
 # enabled = true
 # port = ftp,ftp-data,ftps,ftps-data
 # logpath = %(vsftpd_log)s
-# action = ufw
+# action = ufw[application="VSFTPd",blocktype=reject]
 # bantime = 3600
 # findtime = 300
 # maxretry = 3
