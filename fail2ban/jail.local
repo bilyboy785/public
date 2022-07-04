@@ -8,6 +8,51 @@ findtime = 300
 bantime = 3600
 ignoreip = 127.0.0.1
 
+# [proftpd]
+# enabled = true
+# port = ftp,ftp-data,ftps,ftps-data
+# bantime = 3600
+# findtime = 300
+# maxretry = 3
+
+# [vsftpd]
+# enabled = true
+# port = ftp,ftp-data,ftps,ftps-data
+# logpath = %(vsftpd_log)s
+# bantime = 3600
+# findtime = 300
+# maxretry = 3
+
+## Blocage des tentatives de connexion sur Nginx
+# [nginx-http-auth]
+# enabled  = true
+# filter   = nginx-http-auth
+# port     = http,https
+# logpath  = /var/log/nginx/error.log
+# bantime = 3600
+# findtime = 300
+# maxretry = 3
+
+## Blocage des tentatives d'exploitation de script sur Nginx
+# [nginx-noscript]
+# enabled  = true
+# port     = http,https
+# filter   = nginx-noscript
+# logpath  = /var/log/nginx/access.log
+# bantime = 3600
+# findtime = 300
+# maxretry = 6
+
+## Blocage de chaînes de requêtes provenant de bots connus / malveillants
+# [nginx-badbots]
+# enabled  = true
+# port     = http,https
+# filter   = nginx-badbots
+# logpath  = /var/log/nginx/access.log
+# bantime = 3600
+# findtime = 300
+# maxretry = 2
+
 [recidive]
 enabled = true
 logpath = /var/log/fail2ban.log
