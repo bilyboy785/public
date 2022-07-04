@@ -1,0 +1,9 @@
+[PROFTPd]
+title=FTP Server PROFTPd
+description=Fully fonctional FTP Server
+ports=21/tcp,20/tcp
+
+[VSFTPd]
+title=FTP Server VSFTPd
+description=Fully fonctional FTP Server
+ports=21/tcp,20/tcp
