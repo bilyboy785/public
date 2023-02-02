@@ -11,7 +11,10 @@ function init_server {
     if [[ ! -f /root/.local/bin/bat ]]; then
         ln -s /usr/bin/batcat ~/.local/bin/bat
     fi
-    sh -c "$(curl -fsSL https://raw.githubusercontent.com/loket/oh-my-zsh/feature/batch-mode/tools/install.sh)" 
+    sh -c "$(curl -fsSL https://raw.githubusercontent.com/loket/oh-my-zsh/feature/batch-mode/tools/install.sh)" -s --batch || {
+        echo "Could not install Oh My Zsh" >/dev/stderr
+        exit 1
+    }
     git clone --depth 1 https://github.com/junegunn/fzf.git ~/.fzf
     yes | ~/.fzf/install
     git clone https://github.com/zsh-users/zsh-autosuggestions ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-autosuggestions
