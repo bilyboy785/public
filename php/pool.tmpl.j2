@@ -1,0 +1,47 @@
+[{{ DOMAIN_NAME }}]
+
+user = {{ SITE_USER }}
+group = www-data
+
+listen = /var/run/php/{{ DOMAIN_NAME }}.sock
+listen.owner = www-data
+listen.group = www-data
+listen.mode = 0660
+
+pm = ondemand
+pm.max_children = 40
+pm.process_idle_timeout = 10s
+pm.max_requests = 500
+
+pm.status_path = /status_phpfpm
+ping.path = /ping
+ping.response = pong
+
+access.log = /var/log/php/{{ DOMAIN_NAME }}.access.log
+access.format = "%R - %u %t \"%m %r%Q%q\" %s %f %{mili}d %{kilo}M %C%%"
+slowlog = /var/log/php/{{ DOMAIN_NAME }}.slow.log
+
+request_slowlog_timeout = 5s
+request_terminate_timeout = 120s
+
+chdir = /
+
+catch_workers_output = yes
+
+env[HOSTNAME] = {{ DOMAIN_NAME }}
+env[PATH] = /usr/local/bin:/usr/bin:/bin
+env[TMP] = /var/www/html/{{ DOMAIN_NAME }}/tmp
+env[TMPDIR] = /var/www/html/{{ DOMAIN_NAME }}/tmp
+env[TEMP] = /var/www/html/{{ DOMAIN_NAME }}/tmp
+
+php_admin_value[sendmail_path] = "/usr/sbin/sendmail -t -i -f webmaster@{{ DOMAIN_NAME }}"
+php_flag[display_errors] = off
+php_admin_value[error_log] = /var/log/php/{{ DOMAIN_NAME }}.error.log
+php_admin_flag[log_errors] = on
+php_admin_flag[allow_url_fopen] = off
+php_admin_value[memory_limit] = 256M
+php_admin_value[open_basedir] = /var/www/html/{{ DOMAIN_NAME }}:/var/www/html/{{ DOMAIN_NAME }}/tmp:/tmp
+php_admin_value[upload_max_filesize] = 25M
+php_admin_value[post_max_size] = 25M
+php_admin_value[max_execution_time] = 3600
+php_admin_value[max_input_vars] = 8500
