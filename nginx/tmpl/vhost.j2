@@ -27,8 +27,8 @@ server {
 
     include snippets/ssl.conf;
 
-	ssl_certificate /etc/letsencrypt/live/bldwebagency.fr/fullchain.pem;
-	ssl_certificate_key /etc/letsencrypt/live/bldwebagency.fr/privkey.pem;
+	ssl_certificate /etc/letsencrypt/live/{{ PRIMARY_DOMAIN }}/fullchain.pem;
+	ssl_certificate_key /etc/letsencrypt/live/{{ PRIMARY_DOMAIN }}/privkey.pem;
 
 	access_log /var/log/nginx/{{ PRIMARY_DOMAIN }}.access.log combined;
 	access_log /var/log/nginx/loki/{{ PRIMARY_DOMAIN }}.analytics.log json_analytics;
