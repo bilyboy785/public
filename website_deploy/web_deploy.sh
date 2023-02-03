@@ -23,8 +23,8 @@ function check_status {
 }
 function init_server {
     echo "## Starting initialization"
-    apt update && apt upgrade -yq
-    apt install -yq git zsh curl wget htop python3 bat ripgrep
+    apt update -qq && apt upgrade -yqq
+    apt install -yqq git zsh curl wget htop python3 bat ripgrep
 
     wget -q "https://github.com/mikefarah/yq/releases/download/v4.30.8/yq_linux_${DISRIB_ARCH}" -O $HOME/.local/bin/yq
     wget -q "https://github.com/stedolan/jq/releases/download/jq-1.6/jq-linux64" -O $HOME/.local/bin/jq
@@ -40,8 +40,12 @@ function init_server {
         echo "Could not install Oh My Zsh" >/dev/stderr
         exit 1
     }
-    git clone --depth 1 https://github.com/junegunn/fzf.git ~/.fzf
-    yes | ~/.fzf/install
+
+    if [[ ! -f /root/.fzf.zsh ]]; then
+        git clone --depth 1 https://github.com/junegunn/fzf.git ~/.fzf
+        yes | ~/.fzf/install
+    fi
+
     if [[ ! -d ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-autosuggestions ]]; then
         git clone https://github.com/zsh-users/zsh-autosuggestions ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-autosuggestions
     fi
