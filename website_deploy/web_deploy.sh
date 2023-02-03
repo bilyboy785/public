@@ -68,6 +68,7 @@ function init_server {
     for PHP_VERSION in ${PHP_VERSIONS[@]}
     do
         wget -q https://raw.githubusercontent.com/bilyboy785/public/main/php/php.ini.j2 -O /etc/php/${PHP_VERSION}/fpm/php.ini
+        systemctl restart php${PHP_VERSION}-fpm.service
     done
     bash /root/scripts/geoip-legacy-update.sh "/etc/nginx/geoip"
     echo "bash /root/scripts/geoip-legacy-update.sh" >> /etc/cron.daily/geoiplegacyupdater.sh
