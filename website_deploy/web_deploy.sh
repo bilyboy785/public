@@ -1,8 +1,15 @@
 #!/bin/bash
 
-export DISTRIB_CODENAME=$(cat /etc/os-release | grep VERSION_CODENAME | cut -d\= -f2) 
+export DISTRIB_CODENAME=$(cat /etc/os-release | grep VERSION_CODENAME | cut -d\= -f2)
+export DISRIB_ARCH=$(uname -p)
 export DEBIAN_FRONTEND=noninteractive
 export PHP_VERSIONS=(7.4 8.0 8.1 8.2)
+case $DISTRIB_ARCH in 
+    x86_64)
+        export DISRIB_ARCH="amd64"
+        ;;
+    *)
+esac
 
 function check_status {
     case $1 in
@@ -18,6 +25,9 @@ function init_server {
     echo "## Starting initialization"
     apt update && apt upgrade -yq
     apt install -yq git zsh curl wget htop python3 bat ripgrep
+
+    wget -q "https://github.com/mikefarah/yq/releases/download/v4.30.8/yq_linux_${DISRIB_ARCH}" -O $HOME/.local/bin/yq
+    wget -q "https://github.com/stedolan/jq/releases/download/jq-1.6/jq-linux64" -O $HOME/.local/bin/jq
 
     mkdir -p ~/.local/bin
     if [[ ! -f /root/.local/bin/bat ]]; then
