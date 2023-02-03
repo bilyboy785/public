@@ -88,6 +88,11 @@ function init_server {
         openssl dhparam -out /etc/ssl/certs/dhparam.pem 2048 &>/dev/null
     fi
 
+    echo "# Deploying Fail2ban configuration"
+    curl -sL https://raw.githubusercontent.com/bilyboy785/public/main/fail2ban/jail.conf -o /etc/fail2ban/jail.conf &>/dev/null
+    curl -sL https://raw.githubusercontent.com/bilyboy785/public/main/fail2ban/jail.local -o /etc/fail2ban/jail.local &>/dev/null
+    systemctl restart fail2ban.service &>/dev/null
+
     ## Add repos
     if [[ ! -f /etc/apt/sources.list.d/ondrej-ubuntu-nginx-jammy.list ]]; then
         echo "# Adding nginx repository"
