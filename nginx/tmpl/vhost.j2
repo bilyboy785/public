@@ -1,0 +1,164 @@
+map $http_accept $webp_suffix {
+        default "";
+        "~*webp" ".webp";
+}
+map $http_accept $avif_suffix {
+        default "";
+        "~*avif" ".avif";
+}
+
+upstream {{ PRIMARY_DOMAIN }} {
+	server            unix:/var/run/php/{{ PRIMARY_DOMAIN }}.sock;
+}
+
+server {
+	listen 80;
+	server_name {{ PRIMARY_DOMAIN }} {{ SECONDARY_DOMAIN }};
+	return 301 https://{{ PRIMARY_DOMAIN }}$request_uri;
+
+	access_log /var/log/nginx/{{ PRIMARY_DOMAIN }}.access.log combined;
+	access_log /var/log/nginx/loki/{{ PRIMARY_DOMAIN }}.analytics.log json_analytics;
+	error_log /var/log/nginx/{{ PRIMARY_DOMAIN }}.error.log notice;
+}
+server {
+	listen 443 ssl http2;
+	server_name {{ SECONDARY_DOMAIN }};
+	return 301 https://{{ PRIMARY_DOMAIN }}$request_uri;
+
+    include snippets/ssl.conf;
+
+	ssl_certificate /etc/letsencrypt/live/bldwebagency.fr/fullchain.pem;
+	ssl_certificate_key /etc/letsencrypt/live/bldwebagency.fr/privkey.pem;
+
+	access_log /var/log/nginx/{{ PRIMARY_DOMAIN }}.access.log combined;
+	access_log /var/log/nginx/loki/{{ PRIMARY_DOMAIN }}.analytics.log json_analytics;
+	error_log /var/log/nginx/{{ PRIMARY_DOMAIN }}.error.log notice;
+}
+server {
+	listen            443 ssl http2;
+	server_name       {{ PRIMARY_DOMAIN }};
+
+	set $root "/var/www/html/wordpress/{{ PRIMARY_DOMAIN }}";
+	root              $root;
+
+	index		  index.php index.html;
+
+	client_max_body_size 256M;
+	proxy_buffer_size   128k;
+	proxy_buffers   4 256k;
+	proxy_busy_buffers_size   256k;
+
+	ssl_certificate /etc/letsencrypt/live/{{ PRIMARY_DOMAIN }}/fullchain.pem;
+	ssl_certificate_key /etc/letsencrypt/live/{{ PRIMARY_DOMAIN }}/privkey.pem;
+
+    rewrite ^/(.*?)\?PageSpeed(.*)$ /$1 permanent;
+
+	include snippets/cloudflare.conf;
+    include snippets/ssl.conf;
+    include snippets/headers.conf;
+    include snippets/restrict.conf;
+
+    location ~* ^(/.+)\.(png|jpe?g|jpg)$ {
+        add_header Vary "Accept";
+        add_header Cache-Control "public, no-transform";
+        expires 365d;
+        add_header X-Image-Path "$uri$avif_suffix$webp_suffix";
+        try_files $uri$avif_suffix $uri$webp_suffix $uri =404;
+    }
+
+	location / {
+		try_files     $uri $uri/ /index.php?$args;
+		add_header 'Access-Control-Allow-Origin' '*';
+		add_header 'Accept-Encoding' 'gzip';
+	}
+
+	location ~ \.php$ {
+		try_files $uri =404;
+		fastcgi_split_path_info ^(.+\.php)(/.+)$;
+		if (!-f $document_root$fastcgi_script_name) {
+			return 404;
+		}
+		fastcgi_buffers 8 16k;
+		fastcgi_buffer_size 32k;
+		fastcgi_index index.php;
+		fastcgi_param  SCRIPT_FILENAME $document_root$fastcgi_script_name;
+		fastcgi_read_timeout 600;
+		include       fastcgi.conf;
+		fastcgi_pass  {{ PRIMARY_DOMAIN }};
+	}
+
+    location ~* \.(?:manifest|appcache|html?|xml)$ {
+        expires 30d;
+    }
+    location ~* \.(?:rss|atom)$ {
+        expires 600s;
+        add_header Cache-Control "public";
+    }
+    location ~* \.json {
+        expires 1h;
+        add_header Cache-Control "public";
+    }
+    location ~* \.(?:|cur|gz|svg|svgz|mp4|ogg|ogv|webm|htc)$ {
+        expires 365d;
+        add_header Cache-Control "public";
+        log_not_found off;
+        access_log off;
+    }
+    location ~ \.(?:gif|ico|webp)$ {
+        expires 365d;
+        log_not_found off;
+        add_header Cache-Control "public";
+        access_log off;
+    }
+    location ~ /\. {
+            access_log off;
+            log_not_found off;
+            deny all;
+    }
+    location ~* \.(?:cur|gz|svg|svgz|mp4|ogg|ogv|webm|htc)$ {
+        expires 365d;
+        add_header Cache-Control "public";
+        log_not_found off;
+        access_log off;
+    }
+    location ~ \.(?:ttf|ttc|eot|woff|woff2|otf|svg)$ {
+        expires 365d;
+        add_header Cache-Control "public";
+        log_not_found off;
+        access_log off;
+    }
+    location ~ \.(?:css|js)$ {
+        expires 365d;
+        log_not_found off;
+        access_log off;
+        add_header X-Content-Type-Options "nosniff";
+        add_header Cache-Control "public";
+    }
+    location ~* \?sccss {
+        expires 30d;
+        add_header Cache-Control "public";
+        access_log off;
+    }
+    location = /robots.txt {
+        log_not_found off;
+        access_log off;
+    }
+    location = /favicon.ico {
+        log_not_found off;
+        access_log    off;
+    }
+
+    location ~ ^/(status_phpfpm|ping)$ {
+        allow 127.0.0.1;
+		deny all;
+        fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
+        fastcgi_index index.php;
+        include fastcgi_params;
+		access_log off;
+        fastcgi_pass   {{ PRIMARY_DOMAIN }};
+    }
+
+	access_log /var/log/nginx/{{ PRIMARY_DOMAIN }}.access.log combined;
+	access_log /var/log/nginx/loki/{{ PRIMARY_DOMAIN }}.analytics.log json_analytics;
+	error_log /var/log/nginx/{{ PRIMARY_DOMAIN }}.error.log notice;
+}
