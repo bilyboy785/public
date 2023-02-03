@@ -123,10 +123,11 @@ function init_server {
     fi
 
     echo "# Déploiement des vhosts de monitoring"
-    curl -s https://raw.githubusercontent.com/bilyboy785/public/main/nginx/tmpl/nginx-status.conf -o /etc/nginx/sites-available/000-nginx-status.conf
-    ln -s /etc/nginx/sites-available/000-nginx-status.conf /etc/nginx/sites-enabled/000-nginx-status.conf
-    systemctl restart nginx.service  > /dev/null 2>&1
-    docker run --name nginx-exporter --restart always -d --net=host nginx/nginx-prometheus-exporter:0.10.0 -nginx.scrape-uri=http://127.0.0.1:8080/nginx_status  > /dev/null 2>&1
+    if [[ ! -f /etc/nginx/sites-available/000-nginx-status.conf ]]; then
+        curl -s https://raw.githubusercontent.com/bilyboy785/public/main/nginx/tmpl/nginx-status.conf -o /etc/nginx/sites-available/000-nginx-status.conf
+        ln -s /etc/nginx/sites-available/000-nginx-status.conf /etc/nginx/sites-enabled/000-nginx-status.conf
+        systemctl restart nginx.service  > /dev/null 2>&1
+    fi
 
     curl -s https://raw.githubusercontent.com/bilyboy785/public/main/monitoring/docker-compose.yml.j2 -o /opt/docker-compose.yml
     curl -s https://raw.githubusercontent.com/bilyboy785/public/main/monitoring/promtail.config.yml -o /opt/promtail.config.yml

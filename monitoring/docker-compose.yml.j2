@@ -10,6 +10,13 @@ services:
             - PHP_FPM_SCRAPE_URI="unix:///var/run/php/www.bldwebagency.com.sock;/status_phpfpm"
         volumes:
             - /var/run/php:/var/run/php/:ro
+    
+    nginx-exporter:
+        image: nginx/nginx-prometheus-exporter:0.10.0
+        container_name: nginx-exporter
+        restart: always
+        network_mode: host
+        command: '-nginx.scrape-uri=http://127.0.0.1:8080/nginx_status'
 
     promtail:
         image: grafana/promtail:1.4.1
