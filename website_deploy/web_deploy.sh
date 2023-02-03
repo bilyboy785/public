@@ -132,7 +132,7 @@ function init_server {
     # fi
 
     ## Nginx Configuration
-    echo "## Updating tooling scripts"
+    echo "# Updating tooling scripts"
     mkdir -p /root/scripts
     wget -q https://raw.githubusercontent.com/bilyboy785/geolite-legacy-converter/main/autoupdate.sh -O /root/scripts/geoip-legacy-update.sh
     wget -q https://raw.githubusercontent.com/bilyboy785/public/main/nginx/cloudflare_update_ip.sh -O /root/scripts/cloudflare_update_ip.sh
@@ -151,7 +151,7 @@ function init_server {
         chmod +x /etc/cron.daily/cloudflareupdateip.sh
     fi
 
-    echo "## Update Cloudflare IPs and GeoIP Databases"
+    echo "# Update Cloudflare IPs and GeoIP Databases"
     bash /root/scripts/geoip-legacy-update.sh "/etc/nginx/geoip"
     bash /root/scripts/cloudflare_update_ip.sh
 
@@ -175,6 +175,8 @@ case $1 in
         ;;
     update|-u|--u)
         update_script
+        ;;
+    deploy|-d|--d)
         ;;
     *)
 esac
