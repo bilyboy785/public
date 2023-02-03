@@ -12,7 +12,7 @@ function init_server {
     if [[ ! -f /root/.local/bin/bat ]]; then
         ln -s /usr/bin/batcat ~/.local/bin/bat
     fi
-    
+
     wget -q https://raw.githubusercontent.com/bilyboy785/public/main/website_deploy/web_deploy.sh -O $HOME/.local/bin/web_deploy && chmod +x $HOME/.local/bin/web_deploy
 
     sh -c "$(curl -fsSL https://raw.githubusercontent.com/loket/oh-my-zsh/feature/batch-mode/tools/install.sh)" -s --batch || {
@@ -29,7 +29,7 @@ function init_server {
 
     if [[ ! -f /etc/ssl/certs/dhparam.pem ]]; then
         echo "# Generating dhparam certificate"
-        openssl dhparam -out /etc/ssl/certs/dhparam.pem 4096 &>/dev/null
+        openssl dhparam -out /etc/ssl/certs/dhparam.pem 2048 &>/dev/null
     fi
 
     ## Add repos
