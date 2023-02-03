@@ -28,7 +28,7 @@ function update_script {
     if [[ -f /root/.web_deploy_latest ]]; then
         if [[ "${LATEST_COMMIT}" == "${CURRENT_COMMIT}" ]]; then
             echo "# Updating script to rev ${LATEST_COMMIT}"
-            wget -q https://raw.githubusercontent.com/bilyboy785/public/main/website_deploy/web_deploy.sh -O $HOME/.local/bin/web_deploy && chmod +x $HOME/.local/bin/web_deploy
+            curl -sL -o $HOME/.local/bin/web_deploy https://raw.githubusercontent.com/bilyboy785/public/main/website_deploy/web_deploy.sh && chmod +x $HOME/.local/bin/web_deploy
         fi
     fi
 
@@ -42,8 +42,8 @@ function init_server {
     apt update -qq > /dev/null 2>&1 && apt upgrade -yqq > /dev/null 2>&1
     echo "# Installing base packages"
     apt install -yqq git zsh curl wget htop python3 bat ripgrep exa > /dev/null 2>&1
-    wget -q "https://github.com/mikefarah/yq/releases/download/v4.30.8/yq_linux_${DISRIB_ARCH}" -O $HOME/.local/bin/yq && chmod +x $HOME/.local/bin/yq
-    wget -q "https://github.com/stedolan/jq/releases/download/jq-1.6/jq-linux64" -O $HOME/.local/bin/jq && chmod +x $HOME/.local/bin/jq
+    curl -sL "https://github.com/mikefarah/yq/releases/download/v4.30.8/yq_linux_${DISRIB_ARCH}" -o $HOME/.local/bin/yq && chmod +x $HOME/.local/bin/yq
+    curl -sL "https://github.com/stedolan/jq/releases/download/jq-1.6/jq-linux64" -o $HOME/.local/bin/jq && chmod +x $HOME/.local/bin/jq
 
     mkdir -p ~/.local/bin
     if [[ ! -f /root/.local/bin/bat ]]; then
@@ -75,11 +75,11 @@ function init_server {
     fi
 
     if [[ ! -f ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/themes/bullet-train.zsh-theme ]]; then
-        wget -q http://raw.github.com/caiogondim/bullet-train-oh-my-zsh-theme/master/bullet-train.zsh-theme -O ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/themes/bullet-train.zsh-theme
+        curl -sL http://raw.github.com/caiogondim/bullet-train-oh-my-zsh-theme/master/bullet-train.zsh-theme -o ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/themes/bullet-train.zsh-theme
     fi
 
     mv ~/.zshrc ~/.zshrc.backup
-    wget -q https://raw.githubusercontent.com/bilyboy785/public/main/zsh/zshrc.config -O ~/.zshrc
+    curl -sL https://raw.githubusercontent.com/bilyboy785/public/main/zsh/zshrc.config -o ~/.zshrc
 
     if [[ ! -f /etc/ssl/certs/dhparam.pem ]]; then
         echo "# Generating dhparam certificate"
