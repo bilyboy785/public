@@ -125,7 +125,7 @@ function init_server {
     echo "# Déploiement des vhosts de monitoring"
     if [[ ! -f /etc/nginx/sites-available/000-nginx-status.conf ]]; then
         curl -s https://raw.githubusercontent.com/bilyboy785/public/main/nginx/tmpl/nginx-status.conf -o /etc/nginx/sites-available/000-nginx-status.conf
-        ln -s /etc/nginx/sites-available/000-nginx-status.conf /etc/nginx/sites-enabled/000-nginx-status.conf
+        ln -s /etc/nginx/sites-available/000-nginx-status.conf /etc/nginx/sites-enabled/000-nginx-status.conf > /dev/null 2>&1
         systemctl restart nginx.service  > /dev/null 2>&1
     fi
 
@@ -152,7 +152,10 @@ function init_server {
     curl -s https://raw.githubusercontent.com/bilyboy785/public/main/nginx/errors/index.html -o /var/www/errors/index.html
 
     echo "# Installing certbot"
-    pipx install certbot-dns-cloudflare --include-deps > /dev/null 2>&1
+    which certbot  > /dev/null 2>&1
+    if [[ ! $? -eq 0 ]]; then
+        pipx install certbot-dns-cloudflare --include-deps > /dev/null 2>&1
+    fi
 
     echo "# Installing WP-CLI"
     curl -sL https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar -o /usr/local/bin/wp && chmod +x /usr/local/bin/wp > /dev/null 2>&1
