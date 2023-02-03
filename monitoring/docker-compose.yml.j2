@@ -9,7 +9,7 @@ services:
         environment:
             - PHP_FPM_SCRAPE_URI="unix:///var/run/php/www.bldwebagency.com.sock;/status_phpfpm"
         volumes:
-            - /var/run/php/www.bldwebagency.com.sock:/var/run/php/www.bldwebagency.com.sock:ro
+            - /var/run/php:/var/run/php/:ro
 
     promtail:
         image: grafana/promtail:1.4.1
