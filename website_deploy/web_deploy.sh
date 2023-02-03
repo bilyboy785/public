@@ -21,8 +21,23 @@ function check_status {
             ;;
     esac
 }
+
+function update_script {
+    LATEST_COMMIT=$(git ls-remote https://github.com/bilyboy785/public/ refs/heads/main | awk '{print $1}')
+    CURRENT_COMMIT=$(cat /root/.web_deploy_latest)
+    if [[ -f /root/.web_deploy_latest ]]; then
+        if [[ "${LATEST_COMMIT}" == "${CURRENT_COMMIT}" ]]; then
+            echo "# Updating script to rev ${LATEST_COMMIT}"
+            wget -q https://raw.githubusercontent.com/bilyboy785/public/main/website_deploy/web_deploy.sh -O $HOME/.local/bin/web_deploy && chmod +x $HOME/.local/bin/web_deploy
+        fi
+    fi
+
+}
+
 function init_server {
     echo "## Starting initialization"
+    echo $(git ls-remote https://github.com/bilyboy785/public/ refs/heads/main | awk '{print $1}') > /root/.web_deploy_latest 
+    
     echo "# Updating system"
     apt update -qq > /dev/null 2>&1 && apt upgrade -yqq > /dev/null 2>&1
     echo "# Installing base packages"
@@ -36,7 +51,7 @@ function init_server {
     fi
 
     echo "# Download web_deploy script"
-    wget -q https://raw.githubusercontent.com/bilyboy785/public/main/website_deploy/web_deploy.sh -O $HOME/.local/bin/web_deploy && chmod +x $HOME/.local/bin/web_deploy
+    update_script
 
     echo "# Installing ohmyzsh"
     sh -c "$(curl -fsSL https://raw.githubusercontent.com/loket/oh-my-zsh/feature/batch-mode/tools/install.sh)" -s --batch || {
@@ -139,6 +154,8 @@ function init_server {
 
     nginx -t >/dev/null 2>&1
     check_status $? "Nginx service"
+
+    chsh -s $(which zsh)
 }
 
 case $1 in
