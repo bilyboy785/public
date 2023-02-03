@@ -4,7 +4,18 @@ export DISTRIB_CODENAME=$(cat /etc/os-release | grep VERSION_CODENAME | cut -d\=
 export DEBIAN_FRONTEND=noninteractive
 export PHP_VERSIONS=(7.4 8.0 8.1 8.2)
 
+function check_status {
+    case $1 in
+        0)
+            echo " -> Success - $2"
+            ;;
+        *)
+            echo " -> Error - $2"
+            ;;
+    esac
+}
 function init_server {
+    echo "## Starting initialization"
     apt update && apt upgrade -yq
     apt install -yq git zsh curl wget htop python3 bat ripgrep
 
@@ -23,7 +34,7 @@ function init_server {
     yes | ~/.fzf/install
     git clone https://github.com/zsh-users/zsh-autosuggestions ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-autosuggestions
     git clone https://github.com/zsh-users/zsh-syntax-highlighting.git ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-syntax-highlighting
-    wget -q http://raw.github.com/caiogondim/bullet-train-oh-my-zsh-theme/master/bullet-train.zsh-theme -O $ZSH_CUSTOM/themes/bullet-train.zsh-theme
+    wget -q http://raw.github.com/caiogondim/bullet-train-oh-my-zsh-theme/master/bullet-train.zsh-theme -O ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/themes/bullet-train.zsh-theme
     mv ~/.zshrc ~/.zshrc.backup
     wget -q https://raw.githubusercontent.com/bilyboy785/public/main/zsh/zshrc.config -O ~/.zshrc
 
