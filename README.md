@@ -12,5 +12,6 @@ bash $HOME/.local/bin/web_deploy
 
 ### Deploiement d'un site
 ```
-web_deploy -d SERVER_NAME PHP_VERSIOn
+web_deploy -d SERVER_NAME PHP_VERSION
+    web_deploy -d monsite.com 8.2
 ```
