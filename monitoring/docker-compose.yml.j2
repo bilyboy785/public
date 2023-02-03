@@ -12,7 +12,7 @@ services:
             - /var/run/php:/var/run/php/:ro
     
     nginx-exporter:
-        image: nginx/nginx-prometheus-exporter:0.10.0
+        image: nginx/nginx-prometheus-exporter:latest
         container_name: nginx-exporter
         restart: always
         network_mode: host
