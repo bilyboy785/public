@@ -16,6 +16,8 @@ server {
 	server_name {{ PRIMARY_DOMAIN }} {{ SECONDARY_DOMAIN }};
 	return 301 https://{{ PRIMARY_DOMAIN }}$request_uri;
 
+    include snippets/errors.conf;
+
 	access_log /var/log/nginx/{{ PRIMARY_DOMAIN }}.access.log combined;
 	access_log /var/log/nginx/loki/{{ PRIMARY_DOMAIN }}.analytics.log json_analytics;
 	error_log /var/log/nginx/{{ PRIMARY_DOMAIN }}.error.log notice;
@@ -26,6 +28,7 @@ server {
 	return 301 https://{{ PRIMARY_DOMAIN }}$request_uri;
 
     include snippets/ssl.conf;
+    include snippets/errors.conf;
 
 	ssl_certificate /etc/letsencrypt/live/{{ PRIMARY_DOMAIN }}/fullchain.pem;
 	ssl_certificate_key /etc/letsencrypt/live/{{ PRIMARY_DOMAIN }}/privkey.pem;
@@ -57,6 +60,7 @@ server {
     include snippets/ssl.conf;
     include snippets/headers.conf;
     include snippets/restrict.conf;
+    include snippets/errors.conf;
 
     location ~* ^(/.+)\.(png|jpe?g|jpg)$ {
         add_header Vary "Accept";

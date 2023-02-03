@@ -1,0 +1,71 @@
+error_page 403 = @forbidden;
+location @forbidden {
+        root /var/www/html/errors;
+        try_files $uri /403.html =502;
+        proxy_redirect     off;
+        internal;
+}
+
+error_page 400 = @badrequest;
+location @badrequest {
+        root /var/www/html/errors;
+        try_files $uri /400.html =502;
+        proxy_redirect     off;
+        internal;
+}
+
+error_page 404 = @notfound;
+location @notfound {
+        root /var/www/html/errors;
+        try_files $uri /404.html =502;
+        proxy_redirect     off;
+        internal;
+}
+
+error_page 401 = @unauthorized;
+location @unauthorized {
+        root /var/www/html/errors;
+        try_files $uri /401.html =502;
+        proxy_redirect     off;
+        internal;
+}
+
+error_page 410 = @gone;
+location @gone {
+        root /var/www/html/errors;
+        try_files $uri /410.html =502;
+        proxy_redirect     off;
+        internal;
+}
+
+error_page 405 = @methodnotallowed;
+location @methodnotallowed {
+        root /var/www/html/errors;
+        try_files $uri /405.html =502;
+        proxy_redirect     off;
+        internal;
+}
+
+error_page 500 = @internalerror;
+location @internalerror {
+        root /var/www/html/errors;
+        try_files $uri /500.html =502;
+        proxy_redirect     off;
+        internal;
+}
+
+error_page 502 = @badgateway;
+location @badgateway {
+        root /var/www/html/errors;
+        try_files $uri /502.html =502;
+        proxy_redirect     off;
+        internal;
+}
+
+error_page 503 = @maintenance;
+location @maintenance {
+        root /var/www/html/errors;
+        try_files $uri /503.html =502;
+        proxy_redirect     off;
+        internal;
+}
