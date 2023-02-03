@@ -32,8 +32,13 @@ function init_server {
     }
     git clone --depth 1 https://github.com/junegunn/fzf.git ~/.fzf
     yes | ~/.fzf/install
-    git clone https://github.com/zsh-users/zsh-autosuggestions ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-autosuggestions
-    git clone https://github.com/zsh-users/zsh-syntax-highlighting.git ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-syntax-highlighting
+    if [[ ! -d ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-autosuggestions ]]; then
+        git clone https://github.com/zsh-users/zsh-autosuggestions ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-autosuggestions
+    fi
+    if [[ ! -d ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-syntax-highlighting ]]; then
+        git clone https://github.com/zsh-users/zsh-syntax-highlighting.git ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-syntax-highlighting
+    fi
+
     wget -q http://raw.github.com/caiogondim/bullet-train-oh-my-zsh-theme/master/bullet-train.zsh-theme -O ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/themes/bullet-train.zsh-theme
     mv ~/.zshrc ~/.zshrc.backup
     wget -q https://raw.githubusercontent.com/bilyboy785/public/main/zsh/zshrc.config -O ~/.zshrc
@@ -68,6 +73,7 @@ function init_server {
     fi
 
     ## Nginx Configuration
+    echo "## Updating tooling scripts"
     mkdir -p /root/scripts
     wget -q https://raw.githubusercontent.com/bilyboy785/geolite-legacy-converter/main/autoupdate.sh -O /root/scripts/geoip-legacy-update.sh
     wget -q https://raw.githubusercontent.com/bilyboy785/public/main/nginx/cloudflare_update_ip.sh -O /root/scripts/cloudflare_update_ip.sh
@@ -81,13 +87,22 @@ function init_server {
         wget -q https://raw.githubusercontent.com/bilyboy785/public/main/php/php.ini.j2 -O /etc/php/${PHP_VERSION}/fpm/php.ini
         systemctl restart php${PHP_VERSION}-fpm.service
     done
+
+    if [[ ! -f /etc/cron.daily/geoiplegacyupdater.sh ]]; then
+        echo "bash /root/scripts/geoip-legacy-update.sh" >> /etc/cron.daily/geoiplegacyupdater.sh
+        chmod +x /etc/cron.daily/geoiplegacyupdater.sh
+    fi
+    if [[ ! -f /etc/cron.daily/cloudflareupdateip.sh ]]; then
+        echo "bash /root/scripts/cloudflare_update_ip.sh" >> /etc/cron.daily/cloudflareupdateip.sh
+        chmod +x /etc/cron.daily/cloudflareupdateip.sh
+    fi
+
+    echo "## Update Cloudflare IPs and GeoIP Databases"
     bash /root/scripts/geoip-legacy-update.sh "/etc/nginx/geoip"
-    echo "bash /root/scripts/geoip-legacy-update.sh" >> /etc/cron.daily/geoiplegacyupdater.sh
-    chmod +x /etc/cron.daily/geoiplegacyupdater.sh
-    echo "bash /root/scripts/cloudflare_update_ip.sh" >> /etc/cron.daily/cloudflareupdateip.sh
-    chmod +x /etc/cron.daily/cloudflareupdateip.sh
+    bash /root/scripts/cloudflare_update_ip.sh
+
     nginx -t >/dev/null 2>&1
-    check_status $?
+    check_status $? "Nginx service"
 }
 
 case $1 in
