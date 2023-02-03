@@ -2,6 +2,7 @@
 
 export DISTRIB_CODENAME=$(cat /etc/os-release | grep VERSION_CODENAME | cut -d\= -f2) 
 export DEBIAN_FRONTEND=noninteractive
+export PHP_VERSIONS=(7.4 8.0 8.1 8.2)
 
 function init_server {
     apt update && apt upgrade -yq
@@ -11,6 +12,9 @@ function init_server {
     if [[ ! -f /root/.local/bin/bat ]]; then
         ln -s /usr/bin/batcat ~/.local/bin/bat
     fi
+    
+    wget -q https://raw.githubusercontent.com/bilyboy785/public/main/website_deploy/web_deploy.sh -O $HOME/.local/bin/web_deploy && chmod +x $HOME/.local/bin/web_deploy
+
     sh -c "$(curl -fsSL https://raw.githubusercontent.com/loket/oh-my-zsh/feature/batch-mode/tools/install.sh)" -s --batch || {
         echo "Could not install Oh My Zsh" >/dev/stderr
         exit 1
@@ -24,7 +28,8 @@ function init_server {
     wget -q https://raw.githubusercontent.com/bilyboy785/public/main/zsh/zshrc.config -O ~/.zshrc
 
     if [[ ! -f /etc/ssl/certs/dhparam.pem ]]; then
-        openssl dhparam -out /etc/ssl/certs/dhparam.pem 4096
+        echo "# Generating dhparam certificate"
+        openssl dhparam -out /etc/ssl/certs/dhparam.pem 4096 &>/dev/null
     fi
 
     ## Add repos
@@ -38,13 +43,13 @@ function init_server {
     if [[ ! -f /usr/sbin/nginx ]]; then
         apt install -yq nginx libnginx-mod-http-geoip libnginx-mod-http-geoip2
     fi
-    if [[ ! -f /usr/bin/php7.4 ]]; then
+    if [[ ! -f /usr/bin/php8.2 ]]; then
         apt install -y php8.2-apcu php8.2-bcmath php8.2-cli php8.2-common php8.2-curl php8.2-fpm php8.2-gd php8.2-gmp php8.2-igbinary php8.2-imagick php8.2-imap php8.2-intl php8.2-mbstring php8.2-memcache php8.2-memcached php8.2-msgpack php8.2-mysql php8.2-opcache php8.2-phpdbg php8.2-readline php8.2-redis php8.2-xml php8.2-zip
     fi
-    if [[ ! -f /usr/bin/php7.4 ]]; then
+    if [[ ! -f /usr/bin/php8.1 ]]; then
         apt install -y php8.1-apcu php8.1-bcmath php8.1-cli php8.1-common php8.1-curl php8.1-fpm php8.1-gd php8.1-gmp php8.1-igbinary php8.1-imagick php8.1-imap php8.1-intl php8.1-mbstring php8.1-memcache php8.1-memcached php8.1-msgpack php8.1-mysql php8.1-opcache php8.1-phpdbg php8.1-readline php8.1-redis php8.1-xml php8.1-zip
     fi
-    if [[ ! -f /usr/bin/php7.4 ]]; then
+    if [[ ! -f /usr/bin/php8.0 ]]; then
         apt install -y php8.0-apcu php8.0-bcmath php8.0-cli php8.0-common php8.0-curl php8.0-fpm php8.0-gd php8.0-gmp php8.0-igbinary php8.0-imagick php8.0-imap php8.0-intl php8.0-mbstring php8.0-memcache php8.0-memcached php8.0-msgpack php8.0-mysql php8.0-opcache php8.0-phpdbg php8.0-readline php8.0-redis php8.0-xml php8.0-zip
     fi
     if [[ ! -f /usr/bin/php7.4 ]]; then
@@ -60,12 +65,17 @@ function init_server {
     wget -q https://raw.githubusercontent.com/bilyboy785/public/main/nginx/snippets/headers.conf -O /etc/nginx/snippets/headers.conf
     wget -q https://raw.githubusercontent.com/bilyboy785/public/main/nginx/snippets/restrict.conf -O /etc/nginx/snippets/restrict.conf
     wget -q https://raw.githubusercontent.com/bilyboy785/public/main/nginx/snippets/ssl.conf -O /etc/nginx/snippets/ssl.conf
+    for PHP_VERSION in ${PHP_VERSIONS[@]}
+    do
+        wget -q https://raw.githubusercontent.com/bilyboy785/public/main/php/php.ini.j2 -O /etc/php/${PHP_VERSION}/fpm/php.ini
+    done
     bash /root/scripts/geoip-legacy-update.sh "/etc/nginx/geoip"
     echo "bash /root/scripts/geoip-legacy-update.sh" >> /etc/cron.daily/geoiplegacyupdater.sh
     chmod +x /etc/cron.daily/geoiplegacyupdater.sh
     echo "bash /root/scripts/cloudflare_update_ip.sh" >> /etc/cron.daily/cloudflareupdateip.sh
     chmod +x /etc/cron.daily/cloudflareupdateip.sh
-    nginx -t
+    nginx -t >/dev/null 2>&1
+    check_status $?
 }
 
 case $1 in
