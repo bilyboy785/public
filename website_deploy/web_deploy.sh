@@ -1,4 +1,5 @@
 #!/bin/bash
+clear
 
 export DISTRIB_CODENAME=$(cat /etc/os-release | grep VERSION_CODENAME | cut -d\= -f2)
 export DISRIB_ARCH=$(uname -p)
@@ -42,7 +43,7 @@ function init_server {
     echo "# Updating system"
     apt update -qq > /dev/null 2>&1 && apt upgrade -yqq > /dev/null 2>&1
     echo "# Installing base packages"
-    apt install -yqq git zsh curl wget htop python3 bat ripgrep exa > /dev/null 2>&1
+    apt install -yqq git zsh curl wget htop python3 bat ripgrep exa fail2ban > /dev/null 2>&1
     curl -sL "https://github.com/mikefarah/yq/releases/download/v4.30.8/yq_linux_${DISRIB_ARCH}" -o $HOME/.local/bin/yq && chmod +x $HOME/.local/bin/yq
     curl -sL "https://github.com/stedolan/jq/releases/download/jq-1.6/jq-linux64" -o $HOME/.local/bin/jq && chmod +x $HOME/.local/bin/jq
 
@@ -64,15 +65,15 @@ function init_server {
 
     if [[ ! -f /root/.fzf.zsh ]]; then
         echo "# Installing fzf"
-        git clone --depth 1 https://github.com/junegunn/fzf.git ~/.fzf
-        yes | ~/.fzf/install
+        git clone --depth 1 https://github.com/junegunn/fzf.git ~/.fzf > /dev/null 2>&1
+        yes | ~/.fzf/install > /dev/null 2>&1
     fi
 
     if [[ ! -d ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-autosuggestions ]]; then
-        git clone https://github.com/zsh-users/zsh-autosuggestions ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-autosuggestions
+        git clone https://github.com/zsh-users/zsh-autosuggestions ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-autosuggestions > /dev/null 2>&1
     fi
     if [[ ! -d ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-syntax-highlighting ]]; then
-        git clone https://github.com/zsh-users/zsh-syntax-highlighting.git ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-syntax-highlighting
+        git clone https://github.com/zsh-users/zsh-syntax-highlighting.git ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-syntax-highlighting > /dev/null 2>&1
     fi
 
     if [[ ! -f ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/themes/bullet-train.zsh-theme ]]; then
@@ -109,7 +110,7 @@ function init_server {
             apt install -yqq php${PHP_VERSION}-apcu php${PHP_VERSION}-bcmath php${PHP_VERSION}-cli php${PHP_VERSION}-common php${PHP_VERSION}-curl php${PHP_VERSION}-fpm php${PHP_VERSION}-gd php${PHP_VERSION}-gmp php${PHP_VERSION}-igbinary php${PHP_VERSION}-imagick php${PHP_VERSION}-imap php${PHP_VERSION}-intl php${PHP_VERSION}-mbstring php${PHP_VERSION}-memcache php${PHP_VERSION}-memcached php${PHP_VERSION}-msgpack php${PHP_VERSION}-mysql php${PHP_VERSION}-opcache php${PHP_VERSION}-phpdbg php${PHP_VERSION}-readline php${PHP_VERSION}-redis php${PHP_VERSION}-xml php${PHP_VERSION}-zip  > /dev/null 2>&1
             wget -q https://raw.githubusercontent.com/bilyboy785/public/main/php/php.ini.j2 -O /etc/php/${PHP_VERSION}/fpm/php.ini
             systemctl restart php${PHP_VERSION}-fpm.service
-            check_status $? "PHP ${PHP_VERSION}"
+            check_status $?
         fi
     done
 
@@ -141,6 +142,7 @@ function init_server {
     check_status $? "Nginx service"
 
     chsh -s $(which zsh)
+    zsh
 }
 
 case $1 in
