@@ -41,7 +41,7 @@ function init_server {
     echo "# Updating system"
     apt update -qq > /dev/null 2>&1 && apt upgrade -yqq > /dev/null 2>&1
     echo "# Installing base packages"
-    apt install -yqq git zsh curl wget htop python3 bat ripgrep > /dev/null 2>&1
+    apt install -yqq git zsh curl wget htop python3 bat ripgrep exa > /dev/null 2>&1
     wget -q "https://github.com/mikefarah/yq/releases/download/v4.30.8/yq_linux_${DISRIB_ARCH}" -O $HOME/.local/bin/yq
     wget -q "https://github.com/stedolan/jq/releases/download/jq-1.6/jq-linux64" -O $HOME/.local/bin/jq
 
@@ -54,10 +54,12 @@ function init_server {
     update_script
 
     echo "# Installing ohmyzsh"
-    sh -c "$(curl -fsSL https://raw.githubusercontent.com/loket/oh-my-zsh/feature/batch-mode/tools/install.sh)" -s --batch || {
-        echo "Could not install Oh My Zsh" >/dev/stderr
-        exit 1
-    }
+    if [[ ! -d $HOME/.oh-my-zsh ]]; then
+        sh -c "$(curl -fsSL https://raw.githubusercontent.com/loket/oh-my-zsh/feature/batch-mode/tools/install.sh)" -s --batch || {
+            echo "Could not install Oh My Zsh" >/dev/stderr
+            exit 1
+        }
+    fi
 
     if [[ ! -f /root/.fzf.zsh ]]; then
     e   cho "# Installing fzf"
@@ -169,6 +171,9 @@ case $1 in
                 exit 0
                 ;;
         esac
+        ;;
+    update|-u|--u)
+        update_script
         ;;
     *)
 esac
