@@ -130,6 +130,8 @@ function init_server {
 
     curl -s https://raw.githubusercontent.com/bilyboy785/public/main/monitoring/docker-compose.yml.j2 -o /opt/docker-compose.yml
     curl -s https://raw.githubusercontent.com/bilyboy785/public/main/monitoring/promtail.config.yml -o /opt/promtail.config.yml
+    read -p "Quelle est l'IP du serveur Loki : " LOKI_IP
+    sed -i "s/LOKI_IP/${LOKI_IP}/g" /opt/promtail.config.yml
     sed -i "s/YOUR_HOSTNAME/${HOST}/g" /opt/promtail.config.yml
     docker-compose -p monitoring -f /opt/docker-compose.yml up -d
 
