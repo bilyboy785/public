@@ -333,7 +333,7 @@ case $1 in
                 j2 /tmp/vhost.tmpl.j2 > /etc/nginx/sites-available/${PRIMARY_DOMAIN}.conf
                 if [[ ! -d /etc/letsencrypt/live/${PRIMARY_DOMAIN} ]]; then
                     echo " - Generation du certificat SSL"
-                    certbot -n --quiet certonly --agree-tos --dns-cloudflare --dns-cloudflare-propagation-seconds 30 --dns-cloudflare-credentials /root/.cloudflare-creds -d ${PRIMARY_DOMAIN} -d ${SECONDARY_DOMAIN} -m ${LE_EMAIL}
+                    certbot -n --quiet certonly --agree-tos --dns-cloudflare --dns-cloudflare-propagation-seconds 30 --dns-cloudflare-credentials /root/.cloudflare-creds -d ${PRIMARY_DOMAIN} -d ${SECONDARY_DOMAIN} -m ${LE_EMAIL} --rsa-key-size 4096
                 fi
                 ln -s /etc/nginx/sites-available/${PRIMARY_DOMAIN}.conf /etc/nginx/sites-enabled/${PRIMARY_DOMAIN}.conf
                 nginx -t  > /dev/null 2>&1
