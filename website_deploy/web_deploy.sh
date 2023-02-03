@@ -131,6 +131,8 @@ function init_server {
     curl -s https://raw.githubusercontent.com/bilyboy785/public/main/monitoring/docker-compose.yml.j2 -o /opt/docker-compose.yml
     curl -s https://raw.githubusercontent.com/bilyboy785/public/main/monitoring/promtail.config.yml -o /opt/promtail.config.yml
     read -p "Quelle est l'IP du serveur Loki : " LOKI_IP
+    read -p "Quelle est l'IP du serveur Prometheus (Default : $LOKI_IP): " PROMETHEUS_IP_TMP
+    PROMETHEUS_IP="${PROMETHEUS_IP_TMP:=${LOKI_IP}}"
     sed -i "s/LOKI_IP/${LOKI_IP}/g" /opt/promtail.config.yml
     sed -i "s/YOUR_HOSTNAME/${HOST}/g" /opt/promtail.config.yml
     docker-compose -p monitoring -f /opt/docker-compose.yml up -d
@@ -161,7 +163,6 @@ function init_server {
             apt install -yqq php${PHP_VERSION}-apcu php${PHP_VERSION}-bcmath php${PHP_VERSION}-cli php${PHP_VERSION}-common php${PHP_VERSION}-curl php${PHP_VERSION}-fpm php${PHP_VERSION}-gd php${PHP_VERSION}-gmp php${PHP_VERSION}-igbinary php${PHP_VERSION}-imagick php${PHP_VERSION}-imap php${PHP_VERSION}-intl php${PHP_VERSION}-mbstring php${PHP_VERSION}-memcache php${PHP_VERSION}-memcached php${PHP_VERSION}-msgpack php${PHP_VERSION}-mysql php${PHP_VERSION}-opcache php${PHP_VERSION}-phpdbg php${PHP_VERSION}-readline php${PHP_VERSION}-redis php${PHP_VERSION}-xml php${PHP_VERSION}-zip  > /dev/null 2>&1
             wget -q https://raw.githubusercontent.com/bilyboy785/public/main/php/php.ini.j2 -O /etc/php/${PHP_VERSION}/fpm/php.ini
             systemctl restart php${PHP_VERSION}-fpm.service
-            check_status $?
         fi
     done
     mkdir -p /var/log/php > /dev/null 2>&1
@@ -209,6 +210,8 @@ function init_server {
     ufw allow 'Nginx Full' > /dev/null 2>&1
     ufw allow 'OpenSSH' > /dev/null 2>&1
     ufw allow 'Proftpd' > /dev/null 2>&1
+    ufw allow from ${PROMETHEUS_IP} proto tcp to any port 9113 > /dev/null 2>&1
+    ufw allow from ${PROMETHEUS_IP} proto tcp to any port 9253 > /dev/null 2>&1
     ufw --force enable > /dev/null 2>&1
 
     echo "# Run the following command to update default shell :"
@@ -326,7 +329,7 @@ case $1 in
                 j2 /tmp/vhost.tmpl.j2 > /etc/nginx/sites-available/${PRIMARY_DOMAIN}.conf
                 if [[ ! -d /etc/letsencrypt/live/${PRIMARY_DOMAIN} ]]; then
                     echo " - Generation du certificat SSL"
-                    certbot -n --quiet certonly --agree-tos --dns-cloudflare --dns-cloudflare-credentials /root/.cloudflare-creds -d ${PRIMARY_DOMAIN} -d ${SECONDARY_DOMAIN} -m ${LE_EMAIL}
+                    certbot -n --quiet certonly --agree-tos --dns-cloudflare --dns-cloudflare-propagation-seconds 30 --dns-cloudflare-credentials /root/.cloudflare-creds -d ${PRIMARY_DOMAIN} -d ${SECONDARY_DOMAIN} -m ${LE_EMAIL}
                 fi
                 ln -s /etc/nginx/sites-available/${PRIMARY_DOMAIN}.conf /etc/nginx/sites-enabled/${PRIMARY_DOMAIN}.conf
                 nginx -t  > /dev/null 2>&1
