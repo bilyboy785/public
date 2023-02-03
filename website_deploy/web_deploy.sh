@@ -29,6 +29,7 @@ function update_script {
         if [[ "${LATEST_COMMIT}" == "${CURRENT_COMMIT}" ]]; then
             echo "# Updating script to rev ${LATEST_COMMIT}"
             curl -sL -o $HOME/.local/bin/web_deploy https://raw.githubusercontent.com/bilyboy785/public/main/website_deploy/web_deploy.sh && chmod +x $HOME/.local/bin/web_deploy
+            echo $(git ls-remote https://github.com/bilyboy785/public/ refs/heads/main | awk '{print $1}') > /root/.web_deploy_latest 
         fi
     fi
 
