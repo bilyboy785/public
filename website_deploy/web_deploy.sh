@@ -42,8 +42,8 @@ function init_server {
     apt update -qq > /dev/null 2>&1 && apt upgrade -yqq > /dev/null 2>&1
     echo "# Installing base packages"
     apt install -yqq git zsh curl wget htop python3 bat ripgrep exa > /dev/null 2>&1
-    wget -q "https://github.com/mikefarah/yq/releases/download/v4.30.8/yq_linux_${DISRIB_ARCH}" -O $HOME/.local/bin/yq
-    wget -q "https://github.com/stedolan/jq/releases/download/jq-1.6/jq-linux64" -O $HOME/.local/bin/jq
+    wget -q "https://github.com/mikefarah/yq/releases/download/v4.30.8/yq_linux_${DISRIB_ARCH}" -O $HOME/.local/bin/yq && chmod +x $HOME/.local/bin/yq
+    wget -q "https://github.com/stedolan/jq/releases/download/jq-1.6/jq-linux64" -O $HOME/.local/bin/jq && chmod +x $HOME/.local/bin/jq
 
     mkdir -p ~/.local/bin
     if [[ ! -f /root/.local/bin/bat ]]; then
