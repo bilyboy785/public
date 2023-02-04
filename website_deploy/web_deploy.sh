@@ -271,7 +271,6 @@ function init_server {
 
 case $1 in
     init|-i|--i)
-        update_script
         init_server $2
         ;;
     update|-u|--u)
@@ -427,7 +426,6 @@ case $1 in
                 sudo -u ${PAM_USER} wp --path=${WEBROOT_PATH} --quiet language core update > /dev/null 2>&1
                 ;;
             *)
-                update_script
                 ;;
         esac
         ;;
