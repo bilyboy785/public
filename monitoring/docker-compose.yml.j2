@@ -1,6 +1,15 @@
 ---
 version: '3.8'
 services:
+    promtail:
+        image: grafana/promtail:1.4.1
+        container_name: promtail
+        restart: always
+        volumes:
+            - /opt/promtail.config.yml:/etc/promtail/config.yml:ro
+            - /var/log/nginx/loki:/var/log/nginx/loki:ro
+        command: -config.file=/etc/promtail/config.yml
+
     phpfpm-exporter:
         image: hipages/php-fpm_exporter:latest
         container_name: phpfpm-exporter
@@ -18,11 +27,26 @@ services:
         network_mode: host
         command: '-nginx.scrape-uri=http://127.0.0.1:8080/nginx_status'
 
-    promtail:
-        image: grafana/promtail:1.4.1
-        container_name: promtail
+    node-exporter:
+        image: prom/node-exporter:latest
+        container_name: node-exporter
         restart: always
+        network_mode: host
         volumes:
-        - /opt/promtail.config.yml:/etc/promtail/config.yml:ro
-        - /var/log/nginx/loki:/var/log/nginx/loki:ro
-        command: -config.file=/etc/promtail/config.yml
+            - /proc:/host/proc:ro
+            - /sys:/host/sys:ro
+            - /:/rootfs:ro
+        command:
+            - '--path.procfs=/host/proc'
+            - '--path.rootfs=/rootfs'
+            - '--path.sysfs=/host/sys'
+            - '--collector.filesystem.mount-points-exclude=^/(sys|proc|dev|host|etc)($$|/)'
+    
+    watchtower:
+        container_name: watchtower
+        image: containrrr/watchtower:latest
+        restart: always
+        environment:
+            - WATCHTOWER_CLEANUP=true
+        volumes:
+            - /var/run/docker.sock:/var/run/docker.sock

@@ -225,6 +225,7 @@ function init_server {
     ufw allow 49152:65535/tcp > /dev/null 2>&1
     ufw allow from ${PROMETHEUS_IP} proto tcp to any port 9113 > /dev/null 2>&1
     ufw allow from ${PROMETHEUS_IP} proto tcp to any port 9253 > /dev/null 2>&1
+    ufw allow from ${PROMETHEUS_IP} proto tcp to any port 9100 > /dev/null 2>&1
     ufw --force enable > /dev/null 2>&1
 
     echo "# Run the following command to update default shell :"
