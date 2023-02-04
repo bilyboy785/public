@@ -45,7 +45,7 @@ function init_server {
     echo "# Updating system"
     apt update -qq > /dev/null 2>&1 && apt upgrade -yqq > /dev/null 2>&1
     echo "# Installing base packages"
-    apt install -yqq git zsh curl wget htop python3 bat ripgrep exa fail2ban python3-venv python3-pip proftpd mariadb-client mariadb-server docker.io > /dev/null 2>&1
+    apt install -yqq git zsh curl wget htop python3 bat ripgrep exa fail2ban python3-venv python3-pip proftpd mariadb-client mariadb-server docker.io redis-server > /dev/null 2>&1
     curl -sL "https://github.com/mikefarah/yq/releases/download/v4.30.8/yq_linux_${DISRIB_ARCH}" -o $HOME/.local/bin/yq && chmod +x $HOME/.local/bin/yq
     curl -sL "https://github.com/stedolan/jq/releases/download/jq-1.6/jq-linux64" -o $HOME/.local/bin/jq && chmod +x $HOME/.local/bin/jq
 
@@ -53,6 +53,20 @@ function init_server {
     if [[ ! -f /root/.local/bin/bat ]]; then
         ln -s /usr/bin/batcat ~/.local/bin/bat
     fi
+
+    echo "# Server Tuning"
+    echo 'vm.overcommit_memory = 1' >> /etc/sysctl.conf
+    echo 'vm.swappiness = 1' >> /etc/sysctl.conf
+    echo 'never' > /sys/kernel/mm/transparent_hugepage/enabled
+
+    echo "# Redis-Server Tuning"
+    sed -i 's/^#\ maxmemory-policy\ .*/maxmemory-policy\ allkeys-lru/g' /etc/redis/redis.conf
+    sed -i 's/^#\ maxmemory\ .*/maxmemory\ 2g/g' /etc/redis/redis.conf
+    sed -i 's/^tcp-keepalive\ .*/tcp-keepalive\ 0/g' /etc/redis/redis.conf
+    sed -i 's/^#\ maxclients\ .*/maxclients\ 1000/g' /etc/redis/redis.conf
+
+    
+    systemctl restart redis-server.service > /dev/null 2>&1
 
     echo "# Installation de Docker-compose"
     curl -SL https://github.com/docker/compose/releases/download/v2.15.1/docker-compose-linux-x86_64 -o /usr/local/bin/docker-compose > /dev/null 2>&1
@@ -133,7 +147,7 @@ function init_server {
         read -p "Adresse IP de la stack de monitoring (Loki / Prometheus / Grafana) : " MONITORING_IP
     fi
     sed -i "s/LOKI_IP/${MONITORING_IP}/g" /opt/promtail.config.yml
-    sed -i "s/YOUR_HOSTNAME/${HOST}/g" /opt/promtail.config.yml
+    sed -i "s/YOUR_HOSTNAME/${HOSTNAME}/g" /opt/promtail.config.yml
     docker-compose -p monitoring -f /opt/docker-compose.yml up -d
 
     echo "# Configuration du serveur SFTP Proftpd"
@@ -324,7 +338,7 @@ case $1 in
             yes|y|YES|Y|o|O|oui|OUI)
                 echo ""
                 declare -A WP_CONFIG_ARR
-                WP_CONFIG_ARR=( [WP_MEMORY_LIMIT]="256M" [FS_METHOD]="direct" [DISALLOW_FILE_EDIT]="true" [WP_SITEURL]="https://${PRIMARY_DOMAIN}" [WP_HOME]="https://${PRIMARY_DOMAIN}" [WPLANG]="fr_FR" [DISABLE_WP_CRON]="true" [WP_AUTO_UPDATE_CORE]="minor" )
+                WP_CONFIG_ARR=( [WP_MEMORY_LIMIT]="256M" [FS_METHOD]="direct" [DISALLOW_FILE_EDIT]="true" [WP_SITEURL]="https://${PRIMARY_DOMAIN}" [WP_HOME]="https://${PRIMARY_DOMAIN}" [WPLANG]="fr_FR" [DISABLE_WP_CRON]="true" [WP_AUTO_UPDATE_CORE]="minor" [WP_CACHE_KEY_SALT]="redis_${PRIMARY_DOMAIN}" )
                 WP_PLUGINS_ACTIVATE=(auto-image-attributes-from-filename-with-bulk-updater beautiful-and-responsive-cookie-consent bing-webmaster-tools duplicate-page stops-core-theme-and-plugin-updates header-footer-code-manager redirection loco-translate https://cloud.bldwebagency.fr/s/edJDXwGQrZTzBRb/download/wpforms.zip https://cloud.bldwebagency.fr/s/CWngDeaGbpey35p/download/perfmatters.zip https://cloud.bldwebagency.fr/s/bgW9n3X6X8i5AN8/download/bldwebagency.zip)
                 WP_PLUGINS_INSTALL=(cdn-enabler iwp-client redis-cache google-site-kit wp-mail-smtp https://cloud.bldwebagency.fr/s/TzPF3YT7nQ9as4w/download/updraftplus.zip https://cloud.bldwebagency.fr/s/k9MG9sEgZ3Qnncx/download/wp-rocket.zip)
                 
