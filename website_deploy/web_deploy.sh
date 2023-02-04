@@ -29,17 +29,9 @@ function check_status {
 
 function update_script {
     LATEST_COMMIT=$(git ls-remote https://github.com/bilyboy785/public/ refs/heads/main | awk '{print $1}')
-    if [[ -f /root/.web_deploy_latest ]]; then
-        CURRENT_COMMIT=$(cat /root/.web_deploy_latest  > /dev/null 2>&1)
-        if [[ "${LATEST_COMMIT}" == "${CURRENT_COMMIT}" ]]; then
-            mkdir -p $HOME/.local/bin/web_deploy
-            curl -sL -o $HOME/.local/bin/web_deploy https://raw.githubusercontent.com/bilyboy785/public/main/website_deploy/web_deploy.sh && chmod +x $HOME/.local/bin/web_deploy
-            echo $(git ls-remote https://github.com/bilyboy785/public/ refs/heads/main | awk '{print $1}') > /root/.web_deploy_latest 
-        fi
-    else
-        curl -sL -o $HOME/.local/bin/web_deploy https://raw.githubusercontent.com/bilyboy785/public/main/website_deploy/web_deploy.sh && chmod +x $HOME/.local/bin/web_deploy
-        echo $(git ls-remote https://github.com/bilyboy785/public/ refs/heads/main | awk '{print $1}') > /root/.web_deploy_latest 
-    fi
+    mkdir -p $HOME/.local/bin/
+    curl -sL https://raw.githubusercontent.com/bilyboy785/public/main/website_deploy/web_deploy.sh -o $HOME/.local/bin/web_deploy && chmod +x $HOME/.local/bin/web_deploy
+    echo $(git ls-remote https://github.com/bilyboy785/public/ refs/heads/main | awk '{print $1}') > /root/.web_deploy_latest 
 }
 
 function init_server {
