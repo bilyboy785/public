@@ -17,8 +17,6 @@ case $DISTRIB_ARCH in
         ;;
 esac
 
-update_script
-
 function check_status {
     case $1 in
         0)
@@ -428,6 +426,7 @@ case $1 in
                 sudo -u ${PAM_USER} wp --path=${WEBROOT_PATH} --quiet language core update > /dev/null 2>&1
                 ;;
             *)
+                update_script
                 ;;
         esac
         ;;
