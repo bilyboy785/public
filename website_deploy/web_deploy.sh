@@ -56,9 +56,12 @@ function init_server {
     fi
 
     echo "# Server Tuning"
-    echo 'vm.overcommit_memory = 1' >> /etc/sysctl.conf
-    echo 'vm.swappiness = 1' >> /etc/sysctl.conf
-    echo 'never' > /sys/kernel/mm/transparent_hugepage/enabled
+    if [[ ! -f /opt/.servertuning ]]; then
+        echo 'vm.overcommit_memory = 1' >> /etc/sysctl.conf
+        echo 'vm.swappiness = 1' >> /etc/sysctl.conf
+        echo 'never' > /sys/kernel/mm/transparent_hugepage/enabled
+        echo "servertuning" > /opt/.servertuning
+    fi
 
     echo "# Redis-Server Tuning"
     sed -i 's/^#\ maxmemory-policy\ .*/maxmemory-policy\ allkeys-lru/g' /etc/redis/redis.conf
@@ -142,8 +145,8 @@ function init_server {
 
     curl -s https://raw.githubusercontent.com/bilyboy785/public/main/monitoring/docker-compose.yml.j2 -o /opt/docker-compose.yml
     curl -s https://raw.githubusercontent.com/bilyboy785/public/main/monitoring/promtail.config.yml -o /opt/promtail.config.yml
-    if [[ ! -z $2 ]]; then
-        MONITORING_IP=$2
+    if [[ ! -z $1 ]]; then
+        MONITORING_IP=$1
     else
         read -p "Adresse IP de la stack de monitoring (Loki / Prometheus / Grafana) : " MONITORING_IP
     fi
@@ -254,7 +257,7 @@ case $1 in
         read -p "# Do you want to run server initialization (yes/no) ? " RUN_INIT
         case $RUN_INIT in
             yes|YES|y)
-                init_server
+                init_server $2
                 ;;
             *)
                 exit 0
