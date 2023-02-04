@@ -263,6 +263,7 @@ case $1 in
             echo "dns_cloudflare_api_key = ${CF_API_KEY}" >> /root/.cloudflare-creds
         fi
         DOMAIN_NAME="$2"
+        FTP_DOMAIN=$(echo $DOMAIN_NAME | sed 's/www\.//g')
         PRIMARY_DOMAIN=${DOMAIN_NAME}
         if [[ ! -z $3 ]]; then
             PHP_VERSION=$3
@@ -282,7 +283,7 @@ case $1 in
         FTP_PASSWORD=$(pwgen 26 -1)
         SQL_PASSWORD=$(pwgen 26 -1)
         WP_PASSWORD=$(pwgen 26 -1)
-        FTP_USER="ftp_${PAM_USER}"
+        FTP_USER="admin@${FTP_DOMAIN}"
         echo $DOMAIN_NAME | grep "www." > /dev/null 2>&1
         if [[ $? -eq 0 ]]; then
             SECONDARY_DOMAIN=$(echo $DOMAIN_NAME | sed 's/www\.//g')
