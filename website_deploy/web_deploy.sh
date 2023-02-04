@@ -263,7 +263,6 @@ case $1 in
         ;;
     update|-u|--u)
         update_script
-        bash /root/.local/bin/web_deploy -i
         ;;
     deploy|-d|--d)
         echo "## Website deployment"
