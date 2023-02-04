@@ -8,7 +8,7 @@ export DISTRIB_CODENAME=$(cat /etc/os-release | grep VERSION_CODENAME | cut -d\=
 export DISRIB_ARCH=$(uname -p)
 export DEBIAN_FRONTEND=noninteractive
 export PHP_VERSIONS=(7.4 8.0 8.1 8.2)
-export HOSTNAME=$HOST
+export HOSTNAME=$(cat /etc/hostname)
 case $DISTRIB_ARCH in 
     x86_64)
         export DISRIB_ARCH="amd64"
@@ -29,6 +29,7 @@ function check_status {
 }
 
 function update_script {
+    echo "## Mise à jour du script"
     LATEST_COMMIT=$(git ls-remote https://github.com/bilyboy785/public/ refs/heads/main | awk '{print $1}')
     if [[ ! -d $HOME/.local/bin/ ]]; then
         mkdir -p $HOME/.local/bin/
