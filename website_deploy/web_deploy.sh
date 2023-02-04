@@ -136,6 +136,12 @@ function init_server {
     sed -i "s/YOUR_HOSTNAME/${HOST}/g" /opt/promtail.config.yml
     docker-compose -p monitoring -f /opt/docker-compose.yml up -d
 
+    echo "# Configuration du serveur SFTP Proftpd"
+    rm -f /etc/proftpd/proftpd.conf && rm -f /etc/proftpd/tls.conf
+    curl -s https://raw.githubusercontent.com/bilyboy785/public/main/proftpd/proftpd.conf -o /etc/proftpd/proftpd.conf
+    curl -s https://raw.githubusercontent.com/bilyboy785/public/main/proftpd/tls.conf -o /etc/proftpd/tls.conf
+    touch /etc/proftpd/ftp.passwd && chmod 440 /etc/proftpd/ftp.passwd
+    
     mkdir -p /var/www/errors > /dev/null 2>&1
     HTML_PAGES=(400 401 403 404 405 410 500 502 503 index)
     for PAGE in ${HTML_PAGES[@]}
@@ -216,6 +222,7 @@ function init_server {
     ufw allow 'Nginx Full' > /dev/null 2>&1
     ufw allow 'OpenSSH' > /dev/null 2>&1
     ufw allow 'Proftpd' > /dev/null 2>&1
+    ufw allow 49152:65535/tcp > /dev/null 2>&1
     ufw allow from ${PROMETHEUS_IP} proto tcp to any port 9113 > /dev/null 2>&1
     ufw allow from ${PROMETHEUS_IP} proto tcp to any port 9253 > /dev/null 2>&1
     ufw --force enable > /dev/null 2>&1
@@ -272,7 +279,7 @@ case $1 in
         FTP_PASSWORD=$(pwgen 26 -1)
         SQL_PASSWORD=$(pwgen 26 -1)
         WP_PASSWORD=$(pwgen 26 -1)
-        FTP_USER=$PAM_USER
+        FTP_USER="ftp_${PAM_USER}"
         echo $DOMAIN_NAME | grep "www." > /dev/null 2>&1
         if [[ $? -eq 0 ]]; then
             SECONDARY_DOMAIN=$(echo $DOMAIN_NAME | sed 's/www\.//g')
@@ -319,6 +326,7 @@ case $1 in
                 
                 echo " - Création du user / home / groupe"
                 useradd -md ${HOME_PATH} ${PAM_USER} -s /usr/bin/zsh
+                PAM_UID=$(id ${PAM_USER} | awk '{print $1}' | cut -d \= -f2 | cut -d \( -f1)
                 cp /root/.zshrc ${HOME_PATH}/.zshrc
                 cp -R /root/.oh-my-zsh ${HOME_PATH}/.oh-my-zsh
                 chpasswd </tmp/user
@@ -334,6 +342,11 @@ case $1 in
                 echo " - Déploiement du vhost Nginx"
                 curl -s https://raw.githubusercontent.com/bilyboy785/public/main/nginx/tmpl/vhost.j2 -o /tmp/vhost.tmpl.j2
                 j2 /tmp/vhost.tmpl.j2 > /etc/nginx/sites-available/${PRIMARY_DOMAIN}.conf
+
+                if [[ ! -d /etc/letsencrypt/live/${HOST} ]]; then
+                    certbot -n --quiet certonly --agree-tos --dns-cloudflare --dns-cloudflare-propagation-seconds 30 --dns-cloudflare-credentials /root/.cloudflare-creds -d ${HOST} -m ${LE_EMAIL} --rsa-key-size 4096
+                    systemctl restart proftpd.service
+                fi
                 if [[ ! -d /etc/letsencrypt/live/${PRIMARY_DOMAIN} ]]; then
                     echo " - Generation du certificat SSL"
                     certbot -n --quiet certonly --agree-tos --dns-cloudflare --dns-cloudflare-propagation-seconds 30 --dns-cloudflare-credentials /root/.cloudflare-creds -d ${PRIMARY_DOMAIN} -d ${SECONDARY_DOMAIN} -m ${LE_EMAIL} --rsa-key-size 4096
@@ -354,6 +367,8 @@ case $1 in
                 echo "FLUSH PRIVILEGES;" >> /tmp/sql
                 mysql < /tmp/sql  > /dev/null 2>&1
                 rm -f /tmp/sql
+                echo " - Génération du user proftpd"
+                echo ${FTP_PASSWORD} | ftpasswd --stdin --passwd --file=/etc/proftpd/ftp.passwd --name=${FTP_USER} --uid=${PAM_UID} --gid=33 --home=${WEBROOT_PATH} --shell=/bin/false > /dev/null 2>&1
                 echo " - Téléchargement Wordpress"
                 sudo -u ${PAM_USER} wp --path=${WEBROOT_PATH} --quiet core download --locale=fr_FR > /dev/null 2>&1
                 echo " - Configuraiton de Wordpress"
