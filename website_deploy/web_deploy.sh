@@ -140,7 +140,8 @@ function init_server {
     rm -f /etc/proftpd/proftpd.conf && rm -f /etc/proftpd/tls.conf
     curl -s https://raw.githubusercontent.com/bilyboy785/public/main/proftpd/proftpd.conf -o /etc/proftpd/proftpd.conf
     curl -s https://raw.githubusercontent.com/bilyboy785/public/main/proftpd/tls.conf -o /etc/proftpd/tls.conf
-    sed -i "s/FTP_HOST/${HOST}/g" /etc/proftpd/tls.conf
+    sed -i "s/FTP_HOST/${HOSTNAME}/g" /etc/proftpd/tls.conf
+    sed -i "s/FTP_HOST/${HOSTNAME}/g" /etc/proftpd/proftpd.conf
     touch /etc/proftpd/ftp.passwd && chmod 440 /etc/proftpd/ftp.passwd
     
     mkdir -p /var/www/errors > /dev/null 2>&1
