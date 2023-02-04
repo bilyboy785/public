@@ -88,9 +88,9 @@ function init_server {
     echo "# Installing pipx"
     python3 -m pip install --user pipx  > /dev/null 2>&1
     python3 -m pipx ensurepath  > /dev/null 2>&1
-    pipx install pwgen > /dev/null 2>&1
-    pipx install j2cli > /dev/null 2>&1
-    pipx install bpytop > /dev/null 2>&1
+    /root/.local/bin/pipx install pwgen > /dev/null 2>&1
+    /root/.local/bin/pipx install j2cli > /dev/null 2>&1
+    /root/.local/bin/pipx install bpytop > /dev/null 2>&1
 
     if [[ ! -f /etc/ssl/certs/dhparam.pem ]]; then
         echo "# Generating dhparam certificate"
@@ -133,23 +133,26 @@ function init_server {
     sed -i "s/YOUR_HOSTNAME/${HOST}/g" /opt/promtail.config.yml
     docker-compose -p monitoring -f /opt/docker-compose.yml up -d
 
-
     mkdir -p /var/www/errors > /dev/null 2>&1
-    curl -s https://raw.githubusercontent.com/bilyboy785/public/main/nginx/errors/400.html -o /var/www/errors/400.html
-    curl -s https://raw.githubusercontent.com/bilyboy785/public/main/nginx/errors/401.html -o /var/www/errors/401.html
-    curl -s https://raw.githubusercontent.com/bilyboy785/public/main/nginx/errors/403.html -o /var/www/errors/403.html
-    curl -s https://raw.githubusercontent.com/bilyboy785/public/main/nginx/errors/404.html -o /var/www/errors/404.html
-    curl -s https://raw.githubusercontent.com/bilyboy785/public/main/nginx/errors/405.html -o /var/www/errors/405.html
-    curl -s https://raw.githubusercontent.com/bilyboy785/public/main/nginx/errors/410.html -o /var/www/errors/410.html
-    curl -s https://raw.githubusercontent.com/bilyboy785/public/main/nginx/errors/500.html -o /var/www/errors/500.html
-    curl -s https://raw.githubusercontent.com/bilyboy785/public/main/nginx/errors/502.html -o /var/www/errors/502.html
-    curl -s https://raw.githubusercontent.com/bilyboy785/public/main/nginx/errors/503.html -o /var/www/errors/503.html
-    curl -s https://raw.githubusercontent.com/bilyboy785/public/main/nginx/errors/index.html -o /var/www/errors/index.html
+    HTML_PAGES=(400 401 403 404 405 410 500 502 503 index)
+    for PAGE in ${HTML_PAGES[@]}
+    do
+        curl -s https://raw.githubusercontent.com/bilyboy785/public/main/nginx/errors/${PAGE}.html -o /var/www/errors/${PAGE}.html
+    done
+    # curl -s https://raw.githubusercontent.com/bilyboy785/public/main/nginx/errors/401.html -o /var/www/errors/401.html
+    # curl -s https://raw.githubusercontent.com/bilyboy785/public/main/nginx/errors/403.html -o /var/www/errors/403.html
+    # curl -s https://raw.githubusercontent.com/bilyboy785/public/main/nginx/errors/404.html -o /var/www/errors/404.html
+    # curl -s https://raw.githubusercontent.com/bilyboy785/public/main/nginx/errors/405.html -o /var/www/errors/405.html
+    # curl -s https://raw.githubusercontent.com/bilyboy785/public/main/nginx/errors/410.html -o /var/www/errors/410.html
+    # curl -s https://raw.githubusercontent.com/bilyboy785/public/main/nginx/errors/500.html -o /var/www/errors/500.html
+    # curl -s https://raw.githubusercontent.com/bilyboy785/public/main/nginx/errors/502.html -o /var/www/errors/502.html
+    # curl -s https://raw.githubusercontent.com/bilyboy785/public/main/nginx/errors/503.html -o /var/www/errors/503.html
+    # curl -s https://raw.githubusercontent.com/bilyboy785/public/main/nginx/errors/index.html -o /var/www/errors/index.html
 
     echo "# Installing certbot"
     which certbot  > /dev/null 2>&1
     if [[ ! $? -eq 0 ]]; then
-        pipx install certbot-dns-cloudflare --include-deps > /dev/null 2>&1
+        /root/.local/bin/pipx install certbot-dns-cloudflare --include-deps > /dev/null 2>&1
     fi
 
     echo "# Installing WP-CLI"
@@ -161,7 +164,8 @@ function init_server {
             echo "# Installing php${PHP_VERSION}"
             apt install -yqq php${PHP_VERSION}-apcu php${PHP_VERSION}-bcmath php${PHP_VERSION}-cli php${PHP_VERSION}-common php${PHP_VERSION}-curl php${PHP_VERSION}-fpm php${PHP_VERSION}-gd php${PHP_VERSION}-gmp php${PHP_VERSION}-igbinary php${PHP_VERSION}-imagick php${PHP_VERSION}-imap php${PHP_VERSION}-intl php${PHP_VERSION}-mbstring php${PHP_VERSION}-memcache php${PHP_VERSION}-memcached php${PHP_VERSION}-msgpack php${PHP_VERSION}-mysql php${PHP_VERSION}-opcache php${PHP_VERSION}-phpdbg php${PHP_VERSION}-readline php${PHP_VERSION}-redis php${PHP_VERSION}-xml php${PHP_VERSION}-zip  > /dev/null 2>&1
             wget -q https://raw.githubusercontent.com/bilyboy785/public/main/php/php.ini.j2 -O /etc/php/${PHP_VERSION}/fpm/php.ini
-            systemctl restart php${PHP_VERSION}-fpm.service
+            rm -f /etc/php/${PHP_VERSION}/fpm/pool.d/www.conf
+            systemctl stop php${PHP_VERSION}-fpm.service
         fi
     done
     mkdir -p /var/log/php > /dev/null 2>&1
@@ -331,12 +335,14 @@ case $1 in
                     echo " - Generation du certificat SSL"
                     certbot -n --quiet certonly --agree-tos --dns-cloudflare --dns-cloudflare-propagation-seconds 30 --dns-cloudflare-credentials /root/.cloudflare-creds -d ${PRIMARY_DOMAIN} -d ${SECONDARY_DOMAIN} -m ${LE_EMAIL} --rsa-key-size 4096
                 fi
-                ln -s /etc/nginx/sites-available/${PRIMARY_DOMAIN}.conf /etc/nginx/sites-enabled/${PRIMARY_DOMAIN}.conf
-                nginx -t  > /dev/null 2>&1
-                if [[ ! $? -eq 0 ]]; then
-                    rm /etc/nginx/sites-enabled/${PRIMARY_DOMAIN}.conf
-                else
-                    systemctl reload nginx.service
+                if [[ $? -eq 0 ]]; then
+                    ln -s /etc/nginx/sites-available/${PRIMARY_DOMAIN}.conf /etc/nginx/sites-enabled/${PRIMARY_DOMAIN}.conf
+                    nginx -t  > /dev/null 2>&1
+                    if [[ ! $? -eq 0 ]]; then
+                        rm /etc/nginx/sites-enabled/${PRIMARY_DOMAIN}.conf
+                    else
+                        systemctl reload nginx.service
+                    fi
                 fi
                 echo " - Génération de la base de données"
                 echo "CREATE DATABASE ${SQL_DATABASE};" > /tmp/sql
@@ -366,8 +372,8 @@ case $1 in
                     sudo -u ${PAM_USER} wp --path=${WEBROOT_PATH} --quiet plugin install ${PLUGIN} > /dev/null 2>&1
                 done
                 sudo -u ${PAM_USER} wp --path=${WEBROOT_PATH} --quiet rewrite structure '/%postname%/' > /dev/null 2>&1
-                sudo -u ${PAM_USER} wp --path=${WEBROOT_PATH} --quiet language core update > /dev/null 2>&1
                 sudo -u ${PAM_USER} wp --path=${WEBROOT_PATH} --quiet plugin update --all > /dev/null 2>&1
+                sudo -u ${PAM_USER} wp --path=${WEBROOT_PATH} --quiet language core update > /dev/null 2>&1
                 ;;
             *)
                 ;;
