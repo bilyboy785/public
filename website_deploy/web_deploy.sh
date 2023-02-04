@@ -128,14 +128,10 @@ function init_server {
     curl -s https://raw.githubusercontent.com/bilyboy785/public/main/monitoring/promtail.config.yml -o /opt/promtail.config.yml
     if [[ ! -z $2 ]]; then
         MONITORING_IP=$2
-        LOKI_IP=${MONITORING_IP}
-        PROMETHEUS_IP=${MONITORING_IP}
     else
-        read -p "Quelle est l'IP du serveur Loki : " LOKI_IP
-        read -p "Quelle est l'IP du serveur Prometheus (Default : $LOKI_IP): " PROMETHEUS_IP_TMP
-        PROMETHEUS_IP="${PROMETHEUS_IP_TMP:=${LOKI_IP}}"
+        read -p "Adresse IP de la stack de monitoring (Loki / Prometheus / Grafana) : " MONITORING_IP
     fi
-    sed -i "s/LOKI_IP/${LOKI_IP}/g" /opt/promtail.config.yml
+    sed -i "s/LOKI_IP/${MONITORING_IP}/g" /opt/promtail.config.yml
     sed -i "s/YOUR_HOSTNAME/${HOST}/g" /opt/promtail.config.yml
     docker-compose -p monitoring -f /opt/docker-compose.yml up -d
 
@@ -143,6 +139,7 @@ function init_server {
     rm -f /etc/proftpd/proftpd.conf && rm -f /etc/proftpd/tls.conf
     curl -s https://raw.githubusercontent.com/bilyboy785/public/main/proftpd/proftpd.conf -o /etc/proftpd/proftpd.conf
     curl -s https://raw.githubusercontent.com/bilyboy785/public/main/proftpd/tls.conf -o /etc/proftpd/tls.conf
+    sed -i "s/FTP_HOST/${HOST}/g" /etc/proftpd/tls.conf
     touch /etc/proftpd/ftp.passwd && chmod 440 /etc/proftpd/ftp.passwd
     
     mkdir -p /var/www/errors > /dev/null 2>&1
@@ -226,9 +223,9 @@ function init_server {
     ufw allow 'OpenSSH' > /dev/null 2>&1
     ufw allow 'Proftpd' > /dev/null 2>&1
     ufw allow 49152:65535/tcp > /dev/null 2>&1
-    ufw allow from ${PROMETHEUS_IP} proto tcp to any port 9113 > /dev/null 2>&1
-    ufw allow from ${PROMETHEUS_IP} proto tcp to any port 9253 > /dev/null 2>&1
-    ufw allow from ${PROMETHEUS_IP} proto tcp to any port 9100 > /dev/null 2>&1
+    ufw allow from ${MONITORING_IP} proto tcp to any port 9113 > /dev/null 2>&1
+    ufw allow from ${MONITORING_IP} proto tcp to any port 9253 > /dev/null 2>&1
+    ufw allow from ${MONITORING_IP} proto tcp to any port 9100 > /dev/null 2>&1
     ufw --force enable > /dev/null 2>&1
 
     echo "# Run the following command to update default shell :"
