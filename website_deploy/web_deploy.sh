@@ -34,7 +34,7 @@ function update_script {
     fi
     rm -f $HOME/.local/bin/web_deploy
     curl -sL https://raw.githubusercontent.com/bilyboy785/public/main/website_deploy/web_deploy.sh -o $HOME/.local/bin/web_deploy && chmod +x $HOME/.local/bin/web_deploy
-    echo $(git ls-remote https://github.com/bilyboy785/public/ refs/heads/main | awk '{print $1}') > /root/.web_deploy_latest 
+    echo $(git ls-remote https://github.com/bilyboy785/public/ refs/heads/main | awk '{print $1}') > /root/.web_deploy_latest
 }
 
 function init_server {
@@ -56,9 +56,6 @@ function init_server {
     echo "# Installation de Docker-compose"
     curl -SL https://github.com/docker/compose/releases/download/v2.15.1/docker-compose-linux-x86_64 -o /usr/local/bin/docker-compose > /dev/null 2>&1
     chmod +x /usr/local/bin/docker-compose > /dev/null 2>&1
-
-    #echo "# Download web_deploy script"
-    #update_script
 
     if [[ ! -d $HOME/.oh-my-zsh ]]; then
         echo "# Installing ohmyzsh"
