@@ -83,7 +83,7 @@ function init_server {
     chmod +x /usr/local/bin/docker-compose > /dev/null 2>&1
 
     if [[ ! -d $HOME/.oh-my-zsh ]]; then
-        echo "# Installing ohmyzsh"
+        echo "# Installation de ohmyzsh"
         sh -c "$(curl -fsSL https://raw.githubusercontent.com/loket/oh-my-zsh/feature/batch-mode/tools/install.sh)" -s --batch || {
             echo "Could not install Oh My Zsh" >/dev/stderr
             exit 1
@@ -91,7 +91,7 @@ function init_server {
     fi
 
     if [[ ! -f /root/.fzf.zsh ]]; then
-        echo "# Installing fzf"
+        echo "# Installation de fzf"
         git clone --depth 1 https://github.com/junegunn/fzf.git ~/.fzf > /dev/null 2>&1
         yes | ~/.fzf/install > /dev/null 2>&1
     fi
@@ -110,7 +110,7 @@ function init_server {
     mv ~/.zshrc ~/.zshrc.backup
     curl -sL https://raw.githubusercontent.com/bilyboy785/public/main/zsh/zshrc.config -o ~/.zshrc
 
-    echo "# Installing pipx"
+    echo "# Installation de pipx"
     python3 -m pip install --user pipx  > /dev/null 2>&1
     python3 -m pipx ensurepath  > /dev/null 2>&1
     /root/.local/bin/pipx install pwgen > /dev/null 2>&1
@@ -118,27 +118,27 @@ function init_server {
     /root/.local/bin/pipx install bpytop > /dev/null 2>&1
 
     if [[ ! -f /etc/ssl/certs/dhparam.pem ]]; then
-        echo "# Generating dhparam certificate"
+        echo "# Génération de la clé dhparam"
         openssl dhparam -out /etc/ssl/certs/dhparam.pem 2048  > /dev/null 2>&1
     fi
 
-    echo "# Deploying Fail2ban configuration"
+    echo "# Déploiement de la configuration Fail2ban"
     curl -sL https://raw.githubusercontent.com/bilyboy785/public/main/fail2ban/jail.conf -o /etc/fail2ban/jail.conf  > /dev/null 2>&1
     curl -sL https://raw.githubusercontent.com/bilyboy785/public/main/fail2ban/jail.local -o /etc/fail2ban/jail.local  > /dev/null 2>&1
     systemctl restart fail2ban.service  > /dev/null 2>&1
 
     ## Add repos
     if [[ ! -f /etc/apt/sources.list.d/ondrej-ubuntu-nginx-jammy.list ]]; then
-        echo "# Adding nginx repository"
+        echo "# Ajout du repo PPA Ondrej Nginx"
         add-apt-repository ppa:ondrej/nginx -y > /dev/null 2>&1
     fi
     if [[ ! -f /etc/apt/sources.list.d/ondrej-ubuntu-php-jammy.list ]]; then
-        echo "# Adding php repository"
+        echo "# Ajout du repo PPA Ondrej PHP"
         add-apt-repository ppa:ondrej/php -y > /dev/null 2>&1
     fi
     
     if [[ ! -f /usr/sbin/nginx ]]; then
-        echo "# Installing nginx"
+        echo "# Installation de nginx"
         apt install -yqq nginx libnginx-mod-http-geoip libnginx-mod-http-geoip2 > /dev/null 2>&1
     fi
 
@@ -148,6 +148,17 @@ function init_server {
         ln -s /etc/nginx/sites-available/000-nginx-status.conf /etc/nginx/sites-enabled/000-nginx-status.conf > /dev/null 2>&1
         systemctl restart nginx.service  > /dev/null 2>&1
     fi
+
+    echo "# Déploiement du vhost default pour Nginx"
+    if [[ -f /etc/nginx/sites-available/default ]]; then
+        rm -f /etc/nginx/sites-enabled/default > /dev/null 2>&1
+        rm -f /etc/nginx/sites-available/default > /dev/null 2>&1
+        curl -s https://raw.githubusercontent.com/bilyboy785/public/main/nginx/tmpl/default.conf -o /etc/nginx/sites-available/000-default.conf
+        ln -s /etc/nginx/sites-available/000-default.conf /etc/nginx/sites-enabled/000-default.conf > /dev/null 2>&1
+        sed -i "s/SERVER_HOSTNAME/${HOSTNAME}/g" /etc/nginx/sites-available/000-default.conf
+        systemctl restart nginx.service > /dev/null 2>&1
+    fi
+
 
     curl -s https://raw.githubusercontent.com/bilyboy785/public/main/monitoring/docker-compose.yml.j2 -o /opt/docker-compose.yml
     curl -s https://raw.githubusercontent.com/bilyboy785/public/main/monitoring/promtail.config.yml -o /opt/promtail.config.yml
@@ -184,19 +195,19 @@ function init_server {
     # curl -s https://raw.githubusercontent.com/bilyboy785/public/main/nginx/errors/503.html -o /var/www/errors/503.html
     # curl -s https://raw.githubusercontent.com/bilyboy785/public/main/nginx/errors/index.html -o /var/www/errors/index.html
 
-    echo "# Installing certbot"
+    echo "# Installation de certbot"
     which certbot  > /dev/null 2>&1
     if [[ ! $? -eq 0 ]]; then
         /root/.local/bin/pipx install certbot-dns-cloudflare --include-deps > /dev/null 2>&1
     fi
 
-    echo "# Installing WP-CLI"
+    echo "# Installation de WP-CLI"
     curl -sL https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar -o /usr/local/bin/wp && chmod +x /usr/local/bin/wp > /dev/null 2>&1
 
     for PHP_VERSION in ${PHP_VERSIONS[@]}
     do
         if [[ ! -f /usr/bin/php${PHP_VERSION} ]]; then
-            echo "# Installing php${PHP_VERSION}"
+            echo "# Installation de PHP-${PHP_VERSION}"
             apt install -yqq php${PHP_VERSION}-apcu php${PHP_VERSION}-bcmath php${PHP_VERSION}-cli php${PHP_VERSION}-common php${PHP_VERSION}-curl php${PHP_VERSION}-fpm php${PHP_VERSION}-gd php${PHP_VERSION}-gmp php${PHP_VERSION}-igbinary php${PHP_VERSION}-imagick php${PHP_VERSION}-imap php${PHP_VERSION}-intl php${PHP_VERSION}-mbstring php${PHP_VERSION}-memcache php${PHP_VERSION}-memcached php${PHP_VERSION}-msgpack php${PHP_VERSION}-mysql php${PHP_VERSION}-opcache php${PHP_VERSION}-phpdbg php${PHP_VERSION}-readline php${PHP_VERSION}-redis php${PHP_VERSION}-xml php${PHP_VERSION}-zip  > /dev/null 2>&1
             wget -q https://raw.githubusercontent.com/bilyboy785/public/main/php/php.ini.j2 -O /etc/php/${PHP_VERSION}/fpm/php.ini
             rm -f /etc/php/${PHP_VERSION}/fpm/pool.d/www.conf
@@ -206,7 +217,7 @@ function init_server {
     mkdir -p /var/log/php > /dev/null 2>&1
 
     ## Nginx Configuration
-    echo "# Updating tooling scripts"
+    echo "# Récupération des scripts tools"
     mkdir -p /root/scripts
     wget -q https://raw.githubusercontent.com/bilyboy785/geolite-legacy-converter/main/autoupdate.sh -O /root/scripts/geoip-legacy-update.sh
     wget -q https://raw.githubusercontent.com/bilyboy785/public/main/nginx/cloudflare_update_ip.sh -O /root/scripts/cloudflare_update_ip.sh
@@ -228,14 +239,16 @@ function init_server {
         chmod +x /etc/cron.daily/cloudflareupdateip.sh
     fi
 
-    echo "# Update Cloudflare IPs and GeoIP Databases"
+    echo "# Configuration et mise à jour des bases GeoIP"
     bash /root/scripts/geoip-legacy-update.sh "/etc/nginx/geoip"
+
+    echo "# Génération du fichier real_ip_header pour Cloudflare"
     bash /root/scripts/cloudflare_update_ip.sh
 
     nginx -t >/dev/null 2>&1
     check_status $? "Nginx service"
 
-    echo "# Configuring UFW firewall"
+    echo "# Configuration du firewall UFW"
     sed -i 's/IPV6=.*/IPV6=no/g' /etc/default/ufw
     if [[ ! -f /etc/ufw/applications.d/proftpd ]]; then
         echo "[Proftpd]" >> /etc/ufw/applications.d/proftpd
@@ -364,6 +377,7 @@ case $1 in
                 j2 /tmp/vhost.tmpl.j2 > /etc/nginx/sites-available/${PRIMARY_DOMAIN}.conf
 
                 if [[ ! -d /etc/letsencrypt/live/${HOST} ]]; then
+                    echo "# Génération du certificat SSL pour le FTP TLS"
                     certbot -n --quiet certonly --agree-tos --dns-cloudflare --dns-cloudflare-propagation-seconds 30 --dns-cloudflare-credentials /root/.cloudflare-creds -d ${HOSTNAME} -m ${LE_EMAIL} --rsa-key-size 4096
                     systemctl restart proftpd.service
                 fi
