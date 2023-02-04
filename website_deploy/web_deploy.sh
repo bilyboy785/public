@@ -17,6 +17,8 @@ case $DISTRIB_ARCH in
         ;;
 esac
 
+update_script
+
 function check_status {
     case $1 in
         0)
@@ -29,14 +31,18 @@ function check_status {
 }
 
 function update_script {
-    echo "## Mise à jour du script"
-    #LATEST_COMMIT=$(git ls-remote https://github.com/bilyboy785/public/ refs/heads/main | awk '{print $1}')
-    if [[ ! -d $HOME/.local/bin/ ]]; then
-        mkdir -p $HOME/.local/bin/
+    CURRENT_COMMIT=$(cat /root/.web_deploy_latest  > /dev/null 2>&1)
+    LATEST_COMMIT=$(git ls-remote https://github.com/bilyboy785/public/ refs/heads/main | awk '{print $1}')
+    if [[ ! "${CURRENT_COMMIT}" == "${LATEST_COMMIT}" ]]; then
+        if [[ ! -d $HOME/.local/bin/ ]]; then
+            mkdir -p $HOME/.local/bin/
+        fi
+        if [[ -f $HOME/.local/bin/web_deploy ]]; then
+            rm -f $HOME/.local/bin/web_deploy
+        fi
+        curl -sL https://raw.githubusercontent.com/bilyboy785/public/main/website_deploy/web_deploy.sh -o $HOME/.local/bin/web_deploy && chmod +x $HOME/.local/bin/web_deploy
+        echo $(git ls-remote https://github.com/bilyboy785/public/ refs/heads/main | awk '{print $1}') > /root/.web_deploy_latest
     fi
-    rm -f $HOME/.local/bin/web_deploy
-    curl -sL https://raw.githubusercontent.com/bilyboy785/public/main/website_deploy/web_deploy.sh -o $HOME/.local/bin/web_deploy && chmod +x $HOME/.local/bin/web_deploy
-    #echo $(git ls-remote https://github.com/bilyboy785/public/ refs/heads/main | awk '{print $1}') > /root/.web_deploy_latest
 }
 
 function init_server {
@@ -254,15 +260,7 @@ function init_server {
 
 case $1 in
     init|-i|--i)
-        read -p "# Do you want to run server initialization (yes/no) ? " RUN_INIT
-        case $RUN_INIT in
-            yes|YES|y)
-                init_server $2
-                ;;
-            *)
-                exit 0
-                ;;
-        esac
+        init_server $2
         ;;
     update|-u|--u)
         update_script

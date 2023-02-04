@@ -6,7 +6,7 @@ Public repository with utility scripts and configurations files
 ### Init du serveur
 
 ```
-curl -fs https://raw.githubusercontent.com/bilyboy785/public/main/website_deploy/launcher.sh -o /tmp/launcher && bash /tmp/launcher && bash $HOME/.local/bin/web_deploy
+curl -fs https://raw.githubusercontent.com/bilyboy785/public/main/website_deploy/web_deploy.sh -o /tmp/web_deploy && bash /tmp/web_deploy -i
 ```
 
 ### Deploiement d'un site
