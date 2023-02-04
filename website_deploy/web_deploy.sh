@@ -30,13 +30,13 @@ function check_status {
 
 function update_script {
     echo "## Mise à jour du script"
-    LATEST_COMMIT=$(git ls-remote https://github.com/bilyboy785/public/ refs/heads/main | awk '{print $1}')
+    #LATEST_COMMIT=$(git ls-remote https://github.com/bilyboy785/public/ refs/heads/main | awk '{print $1}')
     if [[ ! -d $HOME/.local/bin/ ]]; then
         mkdir -p $HOME/.local/bin/
     fi
     rm -f $HOME/.local/bin/web_deploy
     curl -sL https://raw.githubusercontent.com/bilyboy785/public/main/website_deploy/web_deploy.sh -o $HOME/.local/bin/web_deploy && chmod +x $HOME/.local/bin/web_deploy
-    echo $(git ls-remote https://github.com/bilyboy785/public/ refs/heads/main | awk '{print $1}') > /root/.web_deploy_latest
+    #echo $(git ls-remote https://github.com/bilyboy785/public/ refs/heads/main | awk '{print $1}') > /root/.web_deploy_latest
 }
 
 function init_server {
@@ -263,6 +263,7 @@ case $1 in
         ;;
     update|-u|--u)
         update_script
+        exit 0
         ;;
     deploy|-d|--d)
         echo "## Website deployment"
