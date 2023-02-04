@@ -39,7 +39,7 @@ function update_script {
 
 function init_server {
     echo "## Starting initialization"
-    echo $(git ls-remote https://github.com/bilyboy785/public/ refs/heads/main | awk '{print $1}') > /root/.web_deploy_latest 
+    echo $(git ls-remote https://github.com/bilyboy785/public/ refs/heads/main | awk '{print $1}') > /root/.web_deploy_latest
     
     echo "# Updating system"
     apt update -qq > /dev/null 2>&1 && apt upgrade -yqq > /dev/null 2>&1
@@ -129,9 +129,15 @@ function init_server {
 
     curl -s https://raw.githubusercontent.com/bilyboy785/public/main/monitoring/docker-compose.yml.j2 -o /opt/docker-compose.yml
     curl -s https://raw.githubusercontent.com/bilyboy785/public/main/monitoring/promtail.config.yml -o /opt/promtail.config.yml
-    read -p "Quelle est l'IP du serveur Loki : " LOKI_IP
-    read -p "Quelle est l'IP du serveur Prometheus (Default : $LOKI_IP): " PROMETHEUS_IP_TMP
-    PROMETHEUS_IP="${PROMETHEUS_IP_TMP:=${LOKI_IP}}"
+    if [[ ! -z $2 ]]; then
+        MONITORING_IP=$2
+        LOKI_IP=${MONITORING_IP}
+        PROMETHEUS_IP=${MONITORING_IP}
+    else
+        read -p "Quelle est l'IP du serveur Loki : " LOKI_IP
+        read -p "Quelle est l'IP du serveur Prometheus (Default : $LOKI_IP): " PROMETHEUS_IP_TMP
+        PROMETHEUS_IP="${PROMETHEUS_IP_TMP:=${LOKI_IP}}"
+    fi
     sed -i "s/LOKI_IP/${LOKI_IP}/g" /opt/promtail.config.yml
     sed -i "s/YOUR_HOSTNAME/${HOST}/g" /opt/promtail.config.yml
     docker-compose -p monitoring -f /opt/docker-compose.yml up -d
