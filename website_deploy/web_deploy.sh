@@ -8,6 +8,7 @@ export DISTRIB_CODENAME=$(cat /etc/os-release | grep VERSION_CODENAME | cut -d\=
 export DISRIB_ARCH=$(uname -p)
 export DEBIAN_FRONTEND=noninteractive
 export PHP_VERSIONS=(7.4 8.0 8.1 8.2)
+export HOSTNAME=$HOST
 case $DISTRIB_ARCH in 
     x86_64)
         export DISRIB_ARCH="amd64"
@@ -345,7 +346,7 @@ case $1 in
                 j2 /tmp/vhost.tmpl.j2 > /etc/nginx/sites-available/${PRIMARY_DOMAIN}.conf
 
                 if [[ ! -d /etc/letsencrypt/live/${HOST} ]]; then
-                    certbot -n --quiet certonly --agree-tos --dns-cloudflare --dns-cloudflare-propagation-seconds 30 --dns-cloudflare-credentials /root/.cloudflare-creds -d ${HOST} -m ${LE_EMAIL} --rsa-key-size 4096
+                    certbot -n --quiet certonly --agree-tos --dns-cloudflare --dns-cloudflare-propagation-seconds 30 --dns-cloudflare-credentials /root/.cloudflare-creds -d ${HOSTNAME} -m ${LE_EMAIL} --rsa-key-size 4096
                     systemctl restart proftpd.service
                 fi
                 if [[ ! -d /etc/letsencrypt/live/${PRIMARY_DOMAIN} ]]; then
