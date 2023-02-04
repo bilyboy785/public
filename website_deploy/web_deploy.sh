@@ -32,6 +32,7 @@ function update_script {
     if [[ -f /root/.web_deploy_latest ]]; then
         CURRENT_COMMIT=$(cat /root/.web_deploy_latest  > /dev/null 2>&1)
         if [[ "${LATEST_COMMIT}" == "${CURRENT_COMMIT}" ]]; then
+            mkdir -p $HOME/.local/bin/web_deploy
             curl -sL -o $HOME/.local/bin/web_deploy https://raw.githubusercontent.com/bilyboy785/public/main/website_deploy/web_deploy.sh && chmod +x $HOME/.local/bin/web_deploy
             echo $(git ls-remote https://github.com/bilyboy785/public/ refs/heads/main | awk '{print $1}') > /root/.web_deploy_latest 
         fi
@@ -238,7 +239,7 @@ case $1 in
         ;;
     update|-u|--u)
         update_script
-        web_deploy -i
+        bash /root/.local/bin/web_deploy -i
         ;;
     deploy|-d|--d)
         echo "## Website deployment"
