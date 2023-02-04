@@ -271,6 +271,7 @@ function init_server {
 
 case $1 in
     init|-i|--i)
+        update_script
         init_server $2
         ;;
     update|-u|--u)
