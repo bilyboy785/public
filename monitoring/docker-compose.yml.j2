@@ -16,7 +16,7 @@ services:
         restart: always
         network_mode: host
         environment:
-            - PHP_FPM_SCRAPE_URI="unix:///var/run/php/www.bldwebagency.com.sock;/status_phpfpm"
+            - PHP_FPM_SCRAPE_URI=${PHP_FPM_SCRAPE_URI}
         volumes:
             - /var/run/php:/var/run/php/:ro
     
