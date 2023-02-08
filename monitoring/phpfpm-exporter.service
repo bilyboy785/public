@@ -1,0 +1,20 @@
+[Unit]
+Description=PHPFPM-Exporter
+ConditionPathExists=/opt
+After=network.target
+
+[Service]
+Type=simple
+User=www-data
+Group=www-data
+LimitNOFILE=1024
+
+Restart=on-failure
+RestartSec=10
+startLimitIntervalSec=60
+
+WorkingDirectory=/opt
+ExecStart=/opt/phpfpm_exporter --phpfpm.socket-directories=/var/run/php --phpfpm.status-path="/status_phpfpm"
+
+[Install]
+WantedBy=multi-user.target
