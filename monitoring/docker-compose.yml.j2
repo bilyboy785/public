@@ -9,16 +9,6 @@ services:
             - /opt/promtail.config.yml:/etc/promtail/config.yml:ro
             - /var/log/nginx/loki:/var/log/nginx/loki:ro
         command: -config.file=/etc/promtail/config.yml
-
-    phpfpm-exporter:
-        image: hipages/php-fpm_exporter:latest
-        container_name: phpfpm-exporter
-        restart: always
-        network_mode: host
-        environment:
-            - PHP_FPM_SCRAPE_URI="unix:///var/run/php/www.bldwebagency.com.sock;/status_phpfpm"
-        volumes:
-            - /var/run/php:/var/run/php/:ro
     
     nginx-exporter:
         image: nginx/nginx-prometheus-exporter:latest
