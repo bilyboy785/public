@@ -35,6 +35,9 @@ consistency:
     check_last: 3
     prefix: "{hostname}-"
 hooks:
+    mysql_databases:
+        - information_schema
+        - mysql
     healthchecks: 
         ping_url: {{ HEALTHCHECK_URL }}
         states:
