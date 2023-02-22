@@ -8,7 +8,7 @@ location:
     read_special: false
     bsd_flags: true
     repositories:
-        - {{ BORG_REPO }}
+        - 
     exclude_patterns:
         - '*.pyc'
         - ~/*/.cache
@@ -17,7 +17,7 @@ location:
     exclude_if_present: .nobackup
 
 storage:
-    encryption_passphrase: "{{ BORG_PASSPHRASE }}"
+    encryption_passphrase: ""
     compression: auto,zstd
     umask: 0077
     archive_name_format: '{hostname}-{now:%Y%m%d_%H%M%S}'
@@ -39,6 +39,6 @@ hooks:
         - information_schema
         - mysql
     healthchecks: 
-        ping_url: {{ HEALTHCHECK_URL }}
+        ping_url: 
         states:
             - finish
