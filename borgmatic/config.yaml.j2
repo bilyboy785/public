@@ -1,0 +1,41 @@
+location:
+    source_directories:
+        - /etc
+        - /opt
+        - /var/www/html
+        - /root
+    one_file_system: true
+    read_special: false
+    bsd_flags: true
+    repositories:
+        - {{ BORG_REPO }}
+    exclude_patterns:
+        - '*.pyc'
+        - ~/*/.cache
+        - /etc/ssl
+    exclude_caches: true
+    exclude_if_present: .nobackup
+
+storage:
+    encryption_passphrase: "{{ BORG_PASSPHRASE }}"
+    compression: auto,zstd
+    umask: 0077
+    archive_name_format: '{hostname}-{now:%Y%m%d_%H%M%S}'
+
+retention:
+    keep_hourly: 12
+    keep_daily: 7
+    keep_weekly: 4
+    keep_monthly: 6
+    keep_yearly: 3
+    prefix: "{hostname}-"
+consistency:
+    checks:
+        - archives
+    check_last: 3
+    prefix: "{hostname}-"
+hooks:
+    healthchecks: 
+        ping_url: {{ HEALTHCHECK_URL }}
+        states:
+            - finish
