@@ -17,6 +17,7 @@ server {
 	return 301 https://{{ PRIMARY_DOMAIN }}$request_uri;
 
     include snippets/errors.conf;
+    include snippets/letsencrypt.conf;
 
 	access_log /var/log/nginx/{{ PRIMARY_DOMAIN }}.access.log combined;
 	access_log /var/log/nginx/loki/{{ PRIMARY_DOMAIN }}.analytics.log json_analytics;
@@ -30,6 +31,7 @@ server {
 
     include snippets/ssl.conf;
     include snippets/errors.conf;
+    include snippets/letsencrypt.conf;
 
 	ssl_certificate /etc/letsencrypt/live/{{ PRIMARY_DOMAIN }}/fullchain.pem;
 	ssl_certificate_key /etc/letsencrypt/live/{{ PRIMARY_DOMAIN }}/privkey.pem;
@@ -58,6 +60,7 @@ server {
     rewrite ^/(.*?)\?PageSpeed(.*)$ /$1 permanent;
 
 	include snippets/cloudflare.conf;
+    include snippets/letsencrypt.conf;
     include snippets/ssl.conf;
     include snippets/headers.conf;
     include snippets/restrict.conf;
