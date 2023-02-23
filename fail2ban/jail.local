@@ -53,6 +53,22 @@ bantime = 3600
 findtime = 300
 maxretry = 3
 
+[wordpress-hard]
+enabled = true
+filter = wordpress-hard
+logpath = /var/log/auth.log
+action = ufw[application="Nginx Full",blocktype=reject]
+maxretry = 1
+port = http,https
+
+[wordpress-soft]
+enabled = true
+filter = wordpress-soft
+action = ufw[application="Nginx Full",blocktype=reject]
+logpath = /var/log/auth.log
+maxretry = 3
+port = http,https
+
 # [vsftpd]
 # enabled = true
 # port = ftp,ftp-data,ftps,ftps-data
