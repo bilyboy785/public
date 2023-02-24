@@ -13,7 +13,7 @@ upstream {{ PRIMARY_DOMAIN }} {
 
 server {
 	listen 80;
-	server_name {{ PRIMARY_DOMAIN }}{%- if SECONDARY_DOMAIN %} {{ SECONDARY_DOMAIN }}{% endif %}{%- if ALIASES_SUPP == true %} {{ ALIASES_SUPP_DOMS }}{% endif %};
+	server_name {{ PRIMARY_DOMAIN }}{%- if SECONDARY_DOMAIN %} {{ SECONDARY_DOMAIN }}{% endif %}{%- if ALIASES_SUPP %} {{ ALIASES_SUPP_DOMS }}{% endif %};
 	return 301 https://{{ PRIMARY_DOMAIN }}$request_uri;
 
     include snippets/errors.conf;
@@ -26,7 +26,7 @@ server {
 {%- if SECONDARY_DOMAIN %}
 server {
 	listen 443 ssl http2;
-	server_name {{ SECONDARY_DOMAIN }}{%- if ALIASES_SUPP == true %} {{ ALIASES_SUPP_DOMS }}{% endif %};
+	server_name {{ SECONDARY_DOMAIN }}{%- if ALIASES_SUPP %} {{ ALIASES_SUPP_DOMS }}{% endif %};
 	return 301 https://{{ PRIMARY_DOMAIN }}$request_uri;
 
     include snippets/ssl.conf;
