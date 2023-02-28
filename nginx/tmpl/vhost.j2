@@ -65,6 +65,8 @@ server {
     include snippets/headers.conf;
     include snippets/restrict.conf;
     include snippets/errors.conf;
+    include snippets/file_cache.conf;
+    include snippets/yoast_sitemap.conf;
     include rocket-nginx/conf.d/default.conf;
 
     location ~* ^(/.+)\.(png|jpe?g|jpg)$ {
