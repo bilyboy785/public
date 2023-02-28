@@ -65,6 +65,7 @@ server {
     include snippets/headers.conf;
     include snippets/restrict.conf;
     include snippets/errors.conf;
+    include rocket-nginx/conf.d/default.conf;
 
     location ~* ^(/.+)\.(png|jpe?g|jpg)$ {
         add_header Vary "Accept";
