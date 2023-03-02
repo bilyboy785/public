@@ -3,25 +3,28 @@ enabled = true
 port = ssh
 filter = sshd
 logpath = /var/log/auth.log
-action = ufw[application="OpenSSH",blocktype=reject]
+action = ufw[application="OpenSSH"]
+	cloudflare-list
 findtime = 300
 bantime = 3600
 maxretry = 3
-ignoreip = 127.0.0.1
+ignoreip = 163.172.53.51 163.172.51.134 163.172.33.112 173.245.48.0/20 103.21.244.0/22 103.22.200.0/22 103.31.4.0/22 141.101.64.0/18 108.162.192.0/18 190.93.240.0/20 188.114.96.0/20 197.234.240.0/22 198.41.128.0/17 162.158.0.0/15 104.16.0.0/13 104.24.0.0/14 172.64.0.0/13 131.0.72.0/22 2400:cb00::/32 2606:4700::/32 2803:f800::/32 2405:b500::/32 2405:8100::/32 2a06:98c0::/29 2c0f:f248::/32
 
 [recidive]
 enabled = true
 logpath = /var/log/fail2ban.log
 filter = recidive
 action = ufw
+	cloudflare-list
 findtime = 86400 ; 1 day
-maxretry = 4
-bantime = 10800 ; 3 hours
+maxretry = 2
+bantime = 43200 ; 12 hours
 
 [recidive2]
 enabled = true
 filter = recidive
-action = ufw
+action = route[blocktype="blackhole"]
+	cloudflare-list
 bantime = 86400 ;1 day
 findtime = 604800 ;1 week
 logpath = /var/log/fail2ban.log
@@ -31,6 +34,7 @@ maxretry = 7
 enabled = true
 filter = recidive
 action = route[blocktype="blackhole"]
+	cloudflare-list
 bantime = 604800 ;1 week
 findtime = 2592000 ;1 month
 logpath = /var/log/fail2ban.log
@@ -40,6 +44,7 @@ maxretry = 10
 enabled = true
 filter = recidive
 action = route[blocktype="blackhole"]
+	cloudflare-list
 bantime = 2592000 ;1 month
 findtime = 15552000 ;6 months
 logpath = /var/log/fail2ban.log
@@ -48,7 +53,8 @@ maxretry = 20
 [proftpd]
 enabled = true
 port = ftp,ftp-data,ftps,ftps-data
-action = ufw[application="PROFTPd",blocktype=reject]
+action = ufw[application="PROFTPd"]
+	cloudflare-list
 bantime = 3600
 findtime = 300
 maxretry = 3
@@ -57,68 +63,21 @@ maxretry = 3
 enabled = true
 filter = wordpress-soft
 logpath = /var/log/auth.log
-action = ufw[application="Nginx Full",blocktype=reject]
+action = ufw[application="Nginx"]
+	cloudflare-list
 maxretry = 3
 findtime = 600
 bantime = 3600
 port = http,https
 
-# [wordpress-hard]
-# enabled = true
-# filter = wordpress-hard
-# logpath = /var/log/auth.log
-# action = ufw[application="Nginx Full",blocktype=reject]
-# maxretry = 1
-# port = http,https
-
-# [vsftpd]
-# enabled = true
-# port = ftp,ftp-data,ftps,ftps-data
-# logpath = %(vsftpd_log)s
-# action = ufw[application="VSFTPd",blocktype=reject]
-# bantime = 3600
-# findtime = 300
-# maxretry = 3
-
-## Blocage des tentatives de connexion sur Nginx
-# [nginx-http-auth]
-# enabled  = true
-# filter   = nginx-http-auth
-# action = ufw[application="Nginx Full",blocktype=reject]
-# port     = http,https
-# logpath  = /var/log/nginx/error.log
-# bantime = 3600
-# findtime = 300
-# maxretry = 3
-
-## Blocage des tentatives d'exploitation de script sur Nginx
-# [nginx-noscript]
-# enabled  = true
-# port     = http,https
-# filter   = nginx-noscript
-# action = ufw[application="Nginx Full",blocktype=reject]
-# logpath  = /var/log/nginx/access.log
-# bantime = 3600
-# findtime = 300
-# maxretry = 6
-
-## Blocage de chaînes de requêtes provenant de bots connus / malveillants
-# [nginx-badbots]
-# enabled  = true
-# port     = http,https
-# filter   = nginx-badbots
-# action = ufw[application="Nginx Full",blocktype=reject]
-# logpath  = /var/log/nginx/access.log
-# bantime = 3600
-# findtime = 300
-# maxretry = 2
-
-## Limitation du nombre de requêtes 
-# [nginx-req-limit]
-# enabled = true
-# filter = nginx-req-limit
-# action = ufw[application="Nginx Full",blocktype=reject]
-# logpath = /var/log/nginx/*error.log
-# findtime = 600
-# bantime = 7200
-# maxretry = 10
+[nginx-forbidden]
+enabled = true
+filter = nginx-forbidden
+port = http,https
+logpath = /var/log/nginx/*error*.log
+action = ufw[application="Nginx"]
+         cloudflare-list
+findtime = 300
+bantime = 21600
+maxretry = 4
+ignoreip = 163.172.53.51 163.172.51.134 163.172.33.112 173.245.48.0/20 103.21.244.0/22 103.22.200.0/22 103.31.4.0/22 141.101.64.0/18 108.162.192.0/18 190.93.240.0/20 188.114.96.0/20 197.234.240.0/22 198.41.128.0/17 162.158.0.0/15 104.16.0.0/13 104.24.0.0/14 172.64.0.0/13 131.0.72.0/22 2400:cb00::/32 2606:4700::/32 2803:f800::/32 2405:b500::/32 2405:8100::/32 2a06:98c0::/29 2c0f:f248::/32
