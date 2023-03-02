@@ -50,9 +50,6 @@ server {
 	index		  index.php index.html;
 
 	client_max_body_size 256M;
-	proxy_buffer_size   128k;
-	proxy_buffers   4 256k;
-	proxy_busy_buffers_size   256k;
 
 	ssl_certificate /etc/letsencrypt/live/{{ PRIMARY_DOMAIN }}/fullchain.pem;
 	ssl_certificate_key /etc/letsencrypt/live/{{ PRIMARY_DOMAIN }}/privkey.pem;
