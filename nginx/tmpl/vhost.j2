@@ -74,6 +74,10 @@ server {
         try_files $uri$avif_suffix $uri$webp_suffix $uri =404;
     }
 
+    location /wp-login.php {
+        limit_req zone=mylimit burst=20 nodelay;
+    }
+
 	location / {
 		try_files     $uri $uri/ /index.php?$args;
 		add_header 'Access-Control-Allow-Origin' '*';
