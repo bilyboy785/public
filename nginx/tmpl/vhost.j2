@@ -58,7 +58,7 @@ server {
 	ssl_certificate /etc/letsencrypt/live/{{ PRIMARY_DOMAIN }}/fullchain.pem;
 	ssl_certificate_key /etc/letsencrypt/live/{{ PRIMARY_DOMAIN }}/privkey.pem;
 
-    {%- if USE_CLOUDFLARE == "true" %}
+    {%- if USE_CLOUDFLARE %}
     include snippets/cloudflare.conf;
     {% endif %}
     include snippets/letsencrypt.conf;
