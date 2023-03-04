@@ -58,7 +58,9 @@ server {
 
     rewrite ^/(.*?)\?PageSpeed(.*)$ /$1 permanent;
 
+    {%- if USE_CLOUDFLARE == "true" %}
 	include snippets/cloudflare.conf;
+    {% endif %}
     include snippets/letsencrypt.conf;
     include snippets/ssl.conf;
     include snippets/headers.conf;
