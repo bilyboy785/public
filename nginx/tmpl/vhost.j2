@@ -7,11 +7,9 @@ map $http_accept $avif_suffix {
         "~*avif" ".avif";
 }
 
-{%- if INSTALL_TYPE == "wordpress" or INSTALL_TYPE == "php" %}
-upstream {{ PRIMARY_DOMAIN }} {
+{%- if INSTALL_TYPE == "wordpress" or INSTALL_TYPE == "php" %}upstream {{ PRIMARY_DOMAIN }} {
 	server            unix:/var/run/php/{{ PRIMARY_DOMAIN }}.sock;
-}
-{% endif %}
+}{% endif %}
 
 server {
 	listen 80;
@@ -25,8 +23,8 @@ server {
 	access_log /var/log/nginx/loki/{{ PRIMARY_DOMAIN }}.analytics.log json_analytics;
 	error_log /var/log/nginx/{{ PRIMARY_DOMAIN }}.error.log notice;
 }
-{%- if SECONDARY_DOMAIN %}
-server {
+
+{%- if SECONDARY_DOMAIN %}server {
 	listen 443 ssl http2;
 	server_name {{ SECONDARY_DOMAIN }}{%- if ALIASES_SUPP %} {{ ALIASES_SUPP_DOMS }}{% endif %};
 	return 301 https://{{ PRIMARY_DOMAIN }}$request_uri;
@@ -41,8 +39,8 @@ server {
 	access_log /var/log/nginx/{{ PRIMARY_DOMAIN }}.access.log combined buffer=32k;
 	access_log /var/log/nginx/loki/{{ PRIMARY_DOMAIN }}.analytics.log json_analytics;
 	error_log /var/log/nginx/{{ PRIMARY_DOMAIN }}.error.log notice;
-}
-{% endif %}
+}{% endif %}
+
 server {
 	listen            443 ssl http2;
 	server_name       {{ PRIMARY_DOMAIN }};
@@ -56,21 +54,16 @@ server {
 	ssl_certificate /etc/letsencrypt/live/{{ PRIMARY_DOMAIN }}/fullchain.pem;
 	ssl_certificate_key /etc/letsencrypt/live/{{ PRIMARY_DOMAIN }}/privkey.pem;
 
-    rewrite ^/(.*?)\?PageSpeed(.*)$ /$1 permanent;
-
-    {%- if USE_CLOUDFLARE == "true" %}
-	include snippets/cloudflare.conf;
-    {% endif %}
+    {%- if USE_CLOUDFLARE == "true" %}include snippets/cloudflare.conf;{% endif %}
     include snippets/letsencrypt.conf;
     include snippets/ssl.conf;
     include snippets/headers.conf;
     include snippets/restrict.conf;
     include snippets/errors.conf;
     include snippets/file_cache.conf;
-    {%- if INSTALL_TYPE == "wordpress" %}
-    include snippets/yoast_sitemap.conf;
-    include rocket-nginx/conf.d/default.conf;
-    {% endif %}
+    {%- if INSTALL_TYPE == "wordpress" %}include snippets/yoast_sitemap.conf;
+    include rocket-nginx/conf.d/default.conf;{% endif %}
+    
 
     location ~* ^(/.+)\.(png|jpe?g|jpg)$ {
         add_header Vary "Accept";
@@ -80,11 +73,10 @@ server {
         try_files $uri$avif_suffix $uri$webp_suffix $uri =404;
     }
 
-    {%- if INSTALL_TYPE == "wordpress" %}
-    location /wp-login.php {
+    {%- if INSTALL_TYPE == "wordpress" %}location /wp-login.php {
         limit_req zone=mylimit burst=20 nodelay;
-    }
-    {% endif %}
+    }{% endif %}
+    
 
 	location / {
 		try_files     $uri $uri/ /index.php?$args;
@@ -92,8 +84,7 @@ server {
 		add_header 'Accept-Encoding' 'gzip';
 	}
 
-{%- if INSTALL_TYPE == "wordpress" or INSTALL_TYPE == "php" %}
-	location ~ \.php$ {
+	{%- if INSTALL_TYPE == "wordpress" or INSTALL_TYPE == "php" %}location ~ \.php$ {
 		try_files $uri =404;
 		fastcgi_split_path_info ^(.+\.php)(/.+)$;
 		if (!-f $document_root$fastcgi_script_name) {
@@ -106,8 +97,8 @@ server {
 		fastcgi_read_timeout 600;
 		include       fastcgi.conf;
 		fastcgi_pass  {{ PRIMARY_DOMAIN }};
-	}
-{% endif %}
+	}{% endif %}
+
 
     location ~* \.(?:manifest|appcache|html?|xml)$ {
         expires 30d;
@@ -170,8 +161,7 @@ server {
         access_log    off;
     }
 
-    {%- if INSTALL_TYPE == "wordpress" or INSTALL_TYPE == "php" %}
-    location ~ ^/(status_phpfpm|ping)$ {
+    {%- if INSTALL_TYPE == "wordpress" or INSTALL_TYPE == "php" %}location ~ ^/(status_phpfpm|ping)$ {
         allow 127.0.0.1;
 		deny all;
         fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
@@ -179,9 +169,8 @@ server {
         include fastcgi_params;
 		access_log off;
         fastcgi_pass   {{ PRIMARY_DOMAIN }};
-    }
-    {% endif %}
-
+    }{% endif %}
+    
 	access_log /var/log/nginx/{{ PRIMARY_DOMAIN }}.access.log combined buffer=32k;
 	access_log /var/log/nginx/loki/{{ PRIMARY_DOMAIN }}.analytics.log json_analytics;
 	error_log /var/log/nginx/{{ PRIMARY_DOMAIN }}.error.log notice;
