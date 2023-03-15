@@ -6,7 +6,7 @@ group = www-data
 listen = /var/run/php/{{ PRIMARY_DOMAIN }}.sock
 listen.owner = www-data
 listen.group = www-data
-listen.mode = 0660
+listen.mode = 0666
 
 pm = ondemand
 pm.max_children = 15
@@ -24,7 +24,7 @@ slowlog = /var/log/php/{{ PRIMARY_DOMAIN }}.slow.log
 request_slowlog_timeout = 5s
 request_terminate_timeout = 120s
 
-chdir = /
+;chdir = /
 
 catch_workers_output = yes
 

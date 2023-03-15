@@ -106,52 +106,11 @@ allow_url_include = Off
 default_socket_timeout = 60
 ;auto_detect_line_endings = Off
 
-;extension=bz2
-;extension=ldap
-;extension=curl
-;extension=ffi
-;extension=ftp
-;extension=fileinfo
-;extension=gd
-;extension=gettext
-;extension=gmp
-;extension=intl
-;extension=imap
-;extension=mbstring
-;extension=exif      ; Must be after mbstring as it depends on it
-;extension=mysqli
-;extension=oci8_12c  ; Use with Oracle Database 12c Instant Client
-;extension=oci8_19  ; Use with Oracle Database 19 Instant Client
-;extension=odbc
-;extension=openssl
-;extension=pdo_firebird
-;extension=pdo_mysql
-;extension=pdo_oci
-;extension=pdo_odbc
-;extension=pdo_pgsql
-;extension=pdo_sqlite
-;extension=pgsql
-;extension=shmop
-;extension=snmp
-;extension=soap
-;extension=sockets
-;extension=sodium
-;extension=sqlite3
-;extension=tidy
-;extension=xsl
-;extension=zip
-;zend_extension=opcache
-
-
 [CLI Server]
 cli_server.color = On
 
 [Date]
 date.timezone = Europe/Paris
-;date.default_latitude = 31.7667
-;date.default_longitude = 35.2333
-;date.sunrise_zenith = 90.833333
-;date.sunset_zenith = 90.833333
 
 [filter]
 ;filter.default = unsafe_raw
@@ -201,10 +160,6 @@ mail.add_x_header = Off
 ;mail.log = syslog
 
 [ODBC]
-;odbc.default_db    =  Not yet implemented
-;odbc.default_user  =  Not yet implemented
-;odbc.default_pw    =  Not yet implemented
-;odbc.default_cursortype
 odbc.allow_persistent = On
 odbc.check_persistent = On
 odbc.max_persistent = -1
