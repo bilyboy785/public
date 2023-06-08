@@ -1,7 +1,7 @@
 [{{ PRIMARY_DOMAIN }}]
 
 user = {{ PAM_USER }}
-group = www-data
+group = {{ PAM_USER }}
 
 listen = /var/run/php/{{ PRIMARY_DOMAIN }}.sock
 listen.owner = www-data
