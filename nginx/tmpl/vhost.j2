@@ -58,6 +58,8 @@ server {
 	ssl_certificate /etc/letsencrypt/live/{{ PRIMARY_DOMAIN }}/fullchain.pem;
 	ssl_certificate_key /etc/letsencrypt/live/{{ PRIMARY_DOMAIN }}/privkey.pem;
 
+    include snippets/webpavif.conf;
+    include snippets/static.conf;
     {%- if USE_CLOUDFLARE %}
     include snippets/cloudflare.conf;
     {% endif %}
@@ -71,15 +73,6 @@ server {
     include snippets/yoast_sitemap.conf;
     include rocket-nginx/conf.d/default.conf;
     {% endif %}
-    
-
-    location ~* ^(/.+)\.(png|jpe?g|jpg)$ {
-        add_header Vary "Accept";
-        add_header Cache-Control "public, no-transform";
-        expires 365d;
-        add_header X-Image-Path "$uri$avif_suffix$webp_suffix";
-        try_files $uri$avif_suffix $uri$webp_suffix $uri =404;
-    }
 
     {%- if INSTALL_TYPE == "wordpress" %}
     location /wp-login.php {
@@ -107,67 +100,6 @@ server {
 		fastcgi_pass  {{ PRIMARY_DOMAIN }};
 	}
     {% endif %}
-
-    location ~* \.(?:manifest|appcache|html?|xml)$ {
-        expires 30d;
-    }
-    location ~* \.(?:rss|atom)$ {
-        expires 600s;
-        add_header Cache-Control "public";
-    }
-    location ~* \.json {
-        expires 1h;
-        add_header Cache-Control "public";
-    }
-    location ~* \.(?:|cur|gz|svg|svgz|mp4|ogg|ogv|webm|htc)$ {
-        expires 365d;
-        add_header Cache-Control "public";
-        log_not_found off;
-        access_log off;
-    }
-    location ~ \.(?:gif|ico|webp)$ {
-        expires 365d;
-        log_not_found off;
-        add_header Cache-Control "public";
-        access_log off;
-    }
-    location ~ /\. {
-            access_log off;
-            log_not_found off;
-            deny all;
-    }
-    location ~* \.(?:cur|gz|svg|svgz|mp4|ogg|ogv|webm|htc)$ {
-        expires 365d;
-        add_header Cache-Control "public";
-        log_not_found off;
-        access_log off;
-    }
-    location ~ \.(?:ttf|ttc|eot|woff|woff2|otf|svg)$ {
-        expires 365d;
-        add_header Cache-Control "public";
-        log_not_found off;
-        access_log off;
-    }
-    location ~ \.(?:css|js)$ {
-        expires 365d;
-        log_not_found off;
-        access_log off;
-        add_header X-Content-Type-Options "nosniff";
-        add_header Cache-Control "public";
-    }
-    location ~* \?sccss {
-        expires 30d;
-        add_header Cache-Control "public";
-        access_log off;
-    }
-    location = /robots.txt {
-        log_not_found off;
-        access_log off;
-    }
-    location = /favicon.ico {
-        log_not_found off;
-        access_log    off;
-    }
 
     {%- if INSTALL_TYPE == "wordpress" or INSTALL_TYPE == "php" %}
     location ~ ^/(status_phpfpm|ping)$ {
