@@ -183,15 +183,6 @@ function init_server {
     do
         curl -s https://raw.githubusercontent.com/bilyboy785/public/main/nginx/errors/${PAGE}.html -o /var/www/errors/${PAGE}.html
     done
-    # curl -s https://raw.githubusercontent.com/bilyboy785/public/main/nginx/errors/401.html -o /var/www/errors/401.html
-    # curl -s https://raw.githubusercontent.com/bilyboy785/public/main/nginx/errors/403.html -o /var/www/errors/403.html
-    # curl -s https://raw.githubusercontent.com/bilyboy785/public/main/nginx/errors/404.html -o /var/www/errors/404.html
-    # curl -s https://raw.githubusercontent.com/bilyboy785/public/main/nginx/errors/405.html -o /var/www/errors/405.html
-    # curl -s https://raw.githubusercontent.com/bilyboy785/public/main/nginx/errors/410.html -o /var/www/errors/410.html
-    # curl -s https://raw.githubusercontent.com/bilyboy785/public/main/nginx/errors/500.html -o /var/www/errors/500.html
-    # curl -s https://raw.githubusercontent.com/bilyboy785/public/main/nginx/errors/502.html -o /var/www/errors/502.html
-    # curl -s https://raw.githubusercontent.com/bilyboy785/public/main/nginx/errors/503.html -o /var/www/errors/503.html
-    # curl -s https://raw.githubusercontent.com/bilyboy785/public/main/nginx/errors/index.html -o /var/www/errors/index.html
 
     echo "# Installation de certbot"
     which certbot  > /dev/null 2>&1
