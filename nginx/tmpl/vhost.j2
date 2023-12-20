@@ -59,7 +59,7 @@ server {
 	ssl_certificate_key /etc/letsencrypt/live/{{ PRIMARY_DOMAIN }}/privkey.pem;
 
     include snippets/webpavif.conf;
-    include snippets/static.conf;
+    include snippets/statics.conf;
     {%- if USE_CLOUDFLARE %}
     include snippets/cloudflare.conf;
     {% endif %}
