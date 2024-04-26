@@ -22,7 +22,7 @@ server {
     include snippets/letsencrypt.conf;
 
 	access_log /var/log/nginx/{{ PRIMARY_DOMAIN }}.access.log combined buffer=32k;
-	access_log /var/log/nginx/loki/{{ PRIMARY_DOMAIN }}.analytics.log json_analytics;
+	# access_log /var/log/nginx/loki/{{ PRIMARY_DOMAIN }}.analytics.log json_analytics;
 	error_log /var/log/nginx/{{ PRIMARY_DOMAIN }}.error.log notice;
 }
 
@@ -40,7 +40,7 @@ server {
 	ssl_certificate_key /etc/letsencrypt/live/{{ PRIMARY_DOMAIN }}/privkey.pem;
 
 	access_log /var/log/nginx/{{ PRIMARY_DOMAIN }}.access.log combined buffer=32k;
-	access_log /var/log/nginx/loki/{{ PRIMARY_DOMAIN }}.analytics.log json_analytics;
+	# access_log /var/log/nginx/loki/{{ PRIMARY_DOMAIN }}.analytics.log json_analytics;
 	error_log /var/log/nginx/{{ PRIMARY_DOMAIN }}.error.log notice;
 }
 {% endif %}
@@ -113,6 +113,6 @@ server {
     {% endif %}
     
 	access_log /var/log/nginx/{{ PRIMARY_DOMAIN }}.access.log combined buffer=32k;
-	access_log /var/log/nginx/loki/{{ PRIMARY_DOMAIN }}.analytics.log json_analytics;
+	# access_log /var/log/nginx/loki/{{ PRIMARY_DOMAIN }}.analytics.log json_analytics;
 	error_log /var/log/nginx/{{ PRIMARY_DOMAIN }}.error.log notice;
 }
