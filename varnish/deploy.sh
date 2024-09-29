@@ -35,9 +35,9 @@ wget -q https://raw.githubusercontent.com/bilyboy785/public/refs/heads/main/varn
 export WEBSITE_DOMAIN=${WEBSITE_DOMAIN}
 export SHORT_NAME=${SHORT_NAME}
 j2 /tmp/nginx.tmpl.j2 > /etc/nginx/sites-available/${WEBSITE_DOMAIN}.conf
-ln -s /etc/nginx/sites-available/${WEBSITE_DOMAIN}.conf /etc/nginx/sites-enabled/${WEBSITE_DOMAIN}.conf
-
 j2 /tmp/php.pool.j2 > /etc/php/8.2/fpm/pool.d/${WEBSITE_DOMAIN}.conf
+
+ln -s /etc/nginx/sites-available/${WEBSITE_DOMAIN}.conf /etc/nginx/sites-enabled/${WEBSITE_DOMAIN}.conf
 
 mariadb -e "CREATE DATABASE db_${SHORT_NAME}"
 mariadb -e "GRANT ALL PRIVILEGES ON db_${SHORT_NAME}.* TO 'usr_${SHORT_NAME}'@'127.0.0.1' IDENTIFIED BY '${DB_PASSWORD}'"
@@ -47,3 +47,9 @@ chown -R ${SHORT_NAME}: /var/www/html/${WEBSITE_DOMAIN}
 chmod 0755 /var/www/html/${WEBSITE_DOMAIN}
 
 certbot certonly -q --dns-cloudflare --dns-cloudflare-credentials /root/.cloudflare-creds -d ${WEBSITE_DOMAIN} --dns-cloudflare-propagation-seconds 30 -m contact@bldwebagency.fr --agree-tos -n
+
+nginx -t  >/dev/null 2>&1
+if [[ $? -eq 0 ]]; then
+  systemctl reload nginx.service
+  systemctl restart php8.2-fpm.service
+fi
