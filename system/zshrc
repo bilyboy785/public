@@ -15,6 +15,11 @@ plugins=(
     colored-man-pages
 )
 
+function whois() {
+	TOKEN=$(cat /root/.ipinfo.token)
+	curl -s https://ipinfo.io/${1}\?token=${TOKEN} | jq '.'
+}
+
 alias increasevol=partprobe /dev/sdb && resize2fs /dev/sdb
 
 source $ZSH/oh-my-zsh.sh
