@@ -7,8 +7,6 @@ ZSH_THEME="robbyrussell"
 zstyle ':omz:update' frequency 30
 zstyle ':completion::complete:make:*:targets' call-command true
 
-[ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
-
 COMPLETION_WAITING_DOTS="true"
 
 plugins=(
