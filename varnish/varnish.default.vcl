@@ -50,9 +50,9 @@ sub vcl_recv {
     }
 
     # Normalize the query arguments (but exclude for WordPress' backend)
-    if (req.url !~ "wp-admin") {
-        set req.url = std.querysort(req.url);
-    }
+    # if (req.url !~ "wp-admin") {
+    #     set req.url = std.querysort(req.url);
+    # }
 
     # Non-RFC2616 or CONNECT which is weird.
     if (
