@@ -20,7 +20,8 @@ done
 
 echo "Domain : ${WEBSITE_DOMAIN}"
 echo "User : ${SHORT_NAME}"
-echo "DB name & user : ${SHORT_NAME}"
+echo "DB name : ${SHORT_NAME}"
+echo "DB user : usr_${SHORT_NAME}"
 echo "DB Password : ${DB_PASSWORD}"
 echo "PHP Pool : $PHP_POOL" 
 echo "Nginx Vhost : $NGINX_VHOST"
@@ -64,7 +65,7 @@ case $2 in
   wp|wordpress|-wordpress|--wordpress|-wp|--wp)
     echo "# Installing Wordpress"
     sudo -u ${SHORT_NAME} wp --path=${WEBROOT_DIR}/web --quiet core download --locale=fr_FR
-    sudo -u ${SHORT_NAME} wp --path=${WEBROOT_DIR}/web --quiet core config --dbname=${SHORT_NAME} --dbuser=${SHORT_NAME} --dbpass=${DB_PASSWORD} --dbhost=127.0.0.1 --locale=fr_FR
+    sudo -u ${SHORT_NAME} wp --path=${WEBROOT_DIR}/web --quiet core config --dbname=${SHORT_NAME} --dbuser=usr_${SHORT_NAME} --dbpass=${DB_PASSWORD} --dbhost=127.0.0.1 --locale=fr_FR
     sudo -u ${SHORT_NAME} wp --path=${WEBROOT_DIR}/web --quiet core install --url="https://${WEBSITE_DOMAIN}" --title="Wordpress" --admin_user=bldwebagency --admin_password=${WP_PASSWORD} --admin_email=contact@bldwebagency.fr --locale=fr_FR
     ;;
   *)
