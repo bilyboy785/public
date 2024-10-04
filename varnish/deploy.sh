@@ -36,7 +36,7 @@ curl -sL https://raw.githubusercontent.com/bilyboy785/public/refs/heads/main/var
 
 echo "# Generating config"
 jinja2 -D WEBSITE_DOMAIN=${WEBSITE_DOMAIN} /root/nginx.tmpl.j2 > /etc/nginx/sites-available/${WEBSITE_DOMAIN}.conf
-jinja2 -D WEBSITE_DOMAIN=${WEBSITE_DOMAIN} -D SHORT_NAME=${SHORT_NAME} /root/php.pool.j2 > /etc/php/8.2/fpm/pool.d/${WEBSITE_DOMAIN}.conf
+jinja2 -D WEBSITE_DOMAIN=${WEBSITE_DOMAIN} -D SHORT_NAME=${SHORT_NAME} /root/php.tmpl.j2 > /etc/php/8.2/fpm/pool.d/${WEBSITE_DOMAIN}.conf
 
 echo "# Enabling config"
 ln -s /etc/nginx/sites-available/${WEBSITE_DOMAIN}.conf /etc/nginx/sites-enabled/${WEBSITE_DOMAIN}.conf

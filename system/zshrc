@@ -22,11 +22,11 @@ function whois() {
 	curl -s https://ipinfo.io/${1}\?token=${TOKEN} | jq '.'
 }
 
-function increasevol(disk) {
-    echo "Old size : $(df -h | grep "$disk" | awk '{print $2}')
-    partprobe /dev/$disk
-    resize2fs /dev/$disk
-    echo "New size : $(df -h | grep "$disk" | awk '{print $2}')
-}
+# function increasevol() {
+#     echo "Old size : $(df -h | grep "$disk" | awk '{print $2}')
+#     partprobe /dev/$disk
+#     resize2fs /dev/$disk
+#     echo "New size : $(df -h | grep "$disk" | awk '{print $2}')
+# }
 
 source $ZSH/oh-my-zsh.sh
