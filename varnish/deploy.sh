@@ -10,14 +10,6 @@ NGINX_VHOST="/etc/nginx/sites-available/${WEBSITE_DOMAIN}.conf"
 FIRST_UID="11000"
 LAST_UID="11200"
 
-for CUST_UID in {11000..11200}; 
-do
-  if [ $(grep -c "$CUST_UID" /etc/passwd) -eq 0 ]; then
-    echo "UID Available : $CUST_UID"
-    break
-  fi
-done
-
 echo "Domain : ${WEBSITE_DOMAIN}"
 echo "User : ${SHORT_NAME}"
 echo "DB name : db_${SHORT_NAME}"
@@ -26,6 +18,18 @@ echo "DB Password : ${DB_PASSWORD}"
 echo "PHP Pool : $PHP_POOL" 
 echo "Nginx Vhost : $NGINX_VHOST"
 
+cat /etc/passwd | grep ${SHORT_NAME} >/dev/null 2>&1
+USER_EXISTS=$?
+
+if [[ $? -ne 0 ]]; then
+  for CUST_UID in {11000..11200}; 
+  do
+    if [ $(grep -c "$CUST_UID" /etc/passwd) -eq 0 ]; then
+      echo "UID Available : $CUST_UID"
+      break
+    fi
+  done
+fi
 
 echo "# Add user & group"
 groupadd --gid ${CUST_UID} ${SHORT_NAME}
