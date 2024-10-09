@@ -4,6 +4,10 @@ server {
 
     client_max_body_size 100M;
 
+    include snippets/ssl.conf;
+    include snippets/restrict.conf;
+    include snippets/cloudflare-realip.conf;
+
     ssl_certificate /etc/letsencrypt/live/{{WEBSITE_DOMAIN}}/fullchain.pem;
     ssl_certificate_key /etc/letsencrypt/live/{{WEBSITE_DOMAIN}}/privkey.pem;
 
@@ -44,6 +48,12 @@ server {
     index index.php index.html index.htm;
 
     client_max_body_size 100M;
+
+    include snippets/restrict.conf;
+    include snippets/cloudflare-realip.conf;
+    include snippets/static.conf;
+    # include snippets/smush.conf;
+    # include snippets/google-xml-sitemap.conf;
 
     location / {
         try_files $uri $uri/ /index.php?$args;
